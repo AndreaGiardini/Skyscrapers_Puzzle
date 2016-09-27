@@ -117,7 +117,18 @@ begin
 			SRAM_LB_N => SRAM_LB_N
 		);
 		
-		datapath : entity work.Skyscrapers_Puzzle_Datapath
+	controller : entity work.Skyscrapers_Puzzle_Controller
+		port map (
+			CLOCK           => clock,
+			RESET_N         => RESET_N,
+			TIME_10MS       => time_10ms,
+			REDRAW          => redraw,
+			MATRIX			=>	matrix,
+			CONSTRAINTS		=> constraints,
+			CURSOR_POS		=> cursor_pos
+		);
+		
+	datapath : entity work.Skyscrapers_Puzzle_Datapath
 		port map (
 			CLOCK           => clock,
 			RESET_N         => RESET_N,
@@ -126,7 +137,7 @@ begin
 			CURSOR_POS		=> cursor_pos
 		);
 		
-		view : entity work.Skyscrapers_Puzzle_View
+	view : entity work.Skyscrapers_Puzzle_View
 		port map (
 			CLOCK           => clock,
 			RESET_N         => RESET_N,
@@ -149,7 +160,7 @@ begin
 			CURSOR_POS		=> cursor_pos
 		);		
 	
-		timegen : process(CLOCK, RESET_N)
+	timegen : process(CLOCK, RESET_N)
 		variable counter : integer range 0 to (500000-1);
 		begin
 			if (RESET_N = '0') then

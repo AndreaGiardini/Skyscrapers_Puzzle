@@ -44,7 +44,7 @@ architecture behavioral of Skyscrapers_Puzzle_View is
 	type substate_type is (CLEAR_SCENE, DRAW_BOARD_OUTLINE, DRAW_BOARD_BLOCKS, FLIP_FRAMEBUFFER);
 	signal state 			: state_type;
 	signal substate 		: substate_type;
-	signal query_cell_r 	: block_pos_type;
+	--signal query_cell_r 	: block_pos_type;
 	
 begin
 	--QUERY_CELL <= query_cell_r;
@@ -61,8 +61,8 @@ begin
 			FB_DRAW_LINE <= '0';
 			FB_FILL_RECT <= '0';
 			FB_FLIP <= '0';
-			query_cell_r.col <= 0;
-			query_cell_r.row <= 0;
+			--query_cell_r.col <= 0;
+			--query_cell_r.row <= 0;
 		elsif (rising_edge(CLOCK))
 		then
 			FB_CLEAR <= '0';
@@ -70,42 +70,40 @@ begin
 			FB_DRAW_LINE <= '0';
 			FB_FILL_RECT <= '0';
 			FB_FLIP <= '0';
+			case (state) is
+				when IDLE =>
+					if (REDRAW = '1')
+					then
+						state <= DRAWING;
+						substate <= CLEAR_SCENE;
+					end if;
+				when WAIT_FOR_READY =>
+					if (FB_READY = '1')
+					then
+						state <= DRAWING;
+					end if;
+				when DRAWING =>
+					state <= WAIT_FOR_READY;
+					case (substate) is
+						when CLEAR_SCENE =>
+							FB_COLOR <= COLOR_BLACK;
+							FB_CLEAR <= '1';
+							substate <= DRAW_BOARD_OUTLINE;
+						when DRAW_BOARD_OUTLINE =>
+							FB_COLOR <= COLOR_RED;
+							FB_X0 <= LEFT_MARGIN;
+							FB_Y0 <= TOP_MARGIN;
+							FB_X1 <= LEFT_MARGIN + (BOARD_COLUMNS * BLOCK_SIZE);
+							FB_Y1 <= TOP_MARGIN + (BOARD_ROWS * BLOCK_SIZE);
+							FB_DRAW_RECT <= '1';
+							substate <= DRAW_BOARD_BLOCKS;
+						when DRAW_BOARD_BLOCKS =>
+							substate <= FLIP_FRAMEBUFFER;
+						when FLIP_FRAMEBUFFER =>
+							FB_FLIP <= '1';
+							state <= IDLE;
+					end case;
+			end case;
 		end if;
-		
-		case (state) is
-			when IDLE =>
-				if (REDRAW = '1')
-				then
-					state <= DRAWING;
-					substate <= CLEAR_SCENE;
-				end if;
-			when WAIT_FOR_READY =>
-				if (FB_READY = '1')
-				then
-					state <= DRAWING;
-				end if;
-			when DRAWING =>
-				state <= WAIT_FOR_READY;
-		end case;
-				
-		case (substate) is
-			when CLEAR_SCENE =>
-				FB_COLOR <= COLOR_BLACK;
-				FB_CLEAR <= '1';
-				substate <= DRAW_BOARD_OUTLINE;
-			when DRAW_BOARD_OUTLINE =>
-				FB_COLOR <= COLOR_RED;
-				FB_X0 <= LEFT_MARGIN;
-				FB_Y0 <= TOP_MARGIN;
-				FB_X1 <= LEFT_MARGIN + (BOARD_COLUMNS * BLOCK_SIZE);
-				FB_Y1 <= TOP_MARGIN + (BOARD_ROWS * BLOCK_SIZE);
-				FB_DRAW_RECT <= '1';
-				substate <= DRAW_BOARD_BLOCKS;
-			when DRAW_BOARD_BLOCKS =>
-				substate <= FLIP_FRAMEBUFFER;
-			when FLIP_FRAMEBUFFER =>
-				FB_FLIP <= '1';
-				state <= IDLE;
-		end case;
 	end process;
 end behavioral;

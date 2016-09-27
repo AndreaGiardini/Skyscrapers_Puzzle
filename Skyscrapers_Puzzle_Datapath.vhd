@@ -30,7 +30,7 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 begin
 	process(CLOCK, RESET_N, current_status, constraint_array, game_win, cursor_position, num_rows)
 	begin
-		if (RESET_N='0' and rising_edge(CLOCK))
+		if (RESET_N='0')
 		then
 			-- Initializing dummy matrix
 			current_status <= (others => (others => 0));
