@@ -153,8 +153,8 @@ begin
 			FB_Y0           => fb_y0,
 			FB_X1           => fb_x1,
 			FB_Y1           => fb_y1,
-			--QUERY_CELL      => query_cell,
-			--CELL_CONTENT    => query_cell_content,
+			QUERY_CELL      => query_cell,
+			CELL_CONTENT    => query_cell_content,
 			MATRIX			=>	matrix,
 			CONSTRAINTS		=> constraints,
 			CURSOR_POS		=> cursor_pos
