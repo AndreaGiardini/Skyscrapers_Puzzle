@@ -35,10 +35,10 @@ entity Skyscrapers_Puzzle_View is
 end entity;
 
 architecture behavioral of Skyscrapers_Puzzle_View is
-	constant LEFT_MARGIN		: integer := 8;
-	constant TOP_MARGIN		: integer := 8;
-	constant BLOCK_SIZE		: integer := 100;
-	constant BLOCK_SPACING	: integer := 10;
+	constant LEFT_MARGIN		: integer := 70;
+	constant TOP_MARGIN		: integer := 60;
+	constant BLOCK_SIZE		: integer := 90;
+	constant BLOCK_SPACING	: integer := 5;
 	
 	type state_type is (IDLE, WAIT_FOR_READY, DRAWING);
 	type substate_type is (CLEAR_SCENE, DRAW_BOARD_OUTLINE, DRAW_BOARD_BLOCKS, FLIP_FRAMEBUFFER);
@@ -90,7 +90,7 @@ begin
 							FB_CLEAR <= '1';
 							substate <= DRAW_BOARD_OUTLINE;
 						when DRAW_BOARD_OUTLINE =>
-							FB_COLOR <= COLOR_RED;
+							FB_COLOR <= COLOR_WHITE;
 							FB_X0 <= LEFT_MARGIN;
 							FB_Y0 <= TOP_MARGIN;
 							FB_X1 <= LEFT_MARGIN + (BOARD_COLUMNS * BLOCK_SIZE);
@@ -98,12 +98,18 @@ begin
 							FB_DRAW_RECT <= '1';
 							substate <= DRAW_BOARD_BLOCKS;
 						when DRAW_BOARD_BLOCKS =>
-							FB_COLOR 	 <= COLOR_GREEN;
 							FB_X0        <= LEFT_MARGIN + (query_cell_r.col * BLOCK_SIZE) + BLOCK_SPACING;
 							FB_Y0        <= TOP_MARGIN  + (query_cell_r.row * BLOCK_SIZE) + BLOCK_SPACING;
 							FB_X1        <= LEFT_MARGIN + (query_cell_r.col * BLOCK_SIZE) + BLOCK_SIZE - BLOCK_SPACING;
 							FB_Y1        <= TOP_MARGIN  + (query_cell_r.row * BLOCK_SIZE) + BLOCK_SIZE - BLOCK_SPACING;
-							FB_FILL_RECT <= '1';
+							if (CURSOR_POS(0) = query_cell_r.row and CURSOR_POS(1) = query_cell_r.col)
+							then
+								FB_COLOR 	 <= COLOR_RED;
+								FB_FILL_RECT <= '1';
+							else
+								FB_COLOR		 <= COLOR_WHITE;
+								FB_DRAW_RECT <= '1';
+							end if;
 							if (query_cell_r.col /= BOARD_COLUMNS-1) then
 								query_cell_r.col <= query_cell_r.col + 1;
 							else

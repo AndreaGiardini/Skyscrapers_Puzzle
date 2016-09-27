@@ -3,8 +3,8 @@ use ieee.numeric_std.all;
 use ieee.std_logic_1164.all;
 
 package Skyscrapers_Puzzle_Package is
-	constant MAX_X				: positive := 512;
-	constant MAX_Y				: positive := 480;
+	constant MAX_X				: positive := 800;
+	constant MAX_Y				: positive := 600;
 	constant BOARD_COLUMNS	: positive := 4;
 	constant BOARD_ROWS		: positive := 4;
 
