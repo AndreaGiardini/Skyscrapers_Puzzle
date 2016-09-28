@@ -28,6 +28,7 @@
 *.pin
 *.mif
 *.hex
+*.cdf
 
 # ignore Quartus II generated folders
 db/
