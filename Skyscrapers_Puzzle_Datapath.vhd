@@ -8,6 +8,10 @@ entity Skyscrapers_Puzzle_Datapath is
 	(
 		CLOCK				: in	std_logic;
 		RESET_N			: in	std_logic;
+		MOVE_RIGHT		: in std_logic;
+		MOVE_LEFT      : in std_logic;
+		MOVE_DOWN		: in std_logic;
+		MOVE_UP			: in std_logic;
 		--MOVE_DIR			: in	std_logic_vector(3 downto 0);
 		--NUM_ROWS			: in	integer; -- Number of rows/columns and constraints (n)
 		--INPUT_NUMBER	: in	integer; -- Number to input at cursor position
@@ -36,7 +40,19 @@ begin
 			current_status <= (others => (others => 0));
 			game_win <= '0';
 			constraints <= ((1, 2, 3, 3), (1, 2, 2, 3), (3, 2, 2, 1), (3, 3, 2, 1));
-			cursor_pos <= (0, 0);
+			CURSOR_POS <= (0, 0);
+			cursor_position <= (0, 0);
+		elsif (rising_edge(CLOCK)) then
+			CURSOR_POS <= cursor_position;
+			if (MOVE_RIGHT = '1') then
+				cursor_position(1) <= cursor_position(1) + 1;
+			elsif (MOVE_LEFT = '1') then
+				cursor_position(1) <= cursor_position(1) - 1;
+			elsif (MOVE_DOWN = '1') then
+				cursor_position(0) <= cursor_position(0) + 1;
+			elsif (MOVE_UP = '1') then
+				cursor_position(0) <= cursor_position(0) - 1;
+			end if;
 		end if;
 	end process;
 end behavior;

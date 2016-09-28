@@ -11,6 +11,17 @@ entity Skyscrapers_Puzzle_Controller is
 		RESET_N        : in  std_logic;
 		TIME_10MS      : in  std_logic;
 
+		BUTTON_RIGHT   : in  std_logic;
+		BUTTON_LEFT    : in  std_logic;
+		BUTTON_DOWN    : in  std_logic;
+		BUTTON_UP		: in  std_logic;
+
+		-- Connections with Data-Path
+		MOVE_RIGHT		: out std_logic;
+		MOVE_LEFT      : out std_logic;
+		MOVE_DOWN		: out std_logic;
+		MOVE_UP			: out std_logic;
+		
 		-- Connections with View
 		REDRAW			: out	std_logic
 	);
@@ -27,30 +38,40 @@ begin
 		if (RESET_N = '0') then
 			time_to_next_move  <= 0;
 			move_time          <= '0';
+			MOVE_RIGHT <= '0';
+			MOVE_LEFT <= '0';
+			MOVE_DOWN <= '0';
+			MOVE_UP <= '0';
+			REDRAW <= '1';
 		elsif rising_edge(CLOCK) then
 			move_time <= '0';
-			
+			MOVE_RIGHT <= '0';
+			MOVE_LEFT <= '0';
+			MOVE_DOWN <= '0';
+			MOVE_UP <= '0';
+			REDRAW <= '0';			
 			if (TIME_10MS = '1') then
+				MOVE_RIGHT <= '0';
+				REDRAW <= '0';
 				if (time_to_next_move = 0) then
 					time_to_next_move  <= MOVEMENT_SPEED - 1;
 					move_time          <= '1';
+					if (BUTTON_RIGHT = '1') then
+						MOVE_RIGHT <= '1';
+						REDRAW <= '1';
+					elsif (BUTTON_LEFT = '1') then
+						MOVE_LEFT <= '1';
+						REDRAW <= '1';
+					elsif (BUTTON_DOWN = '1') then
+						MOVE_DOWN <= '1';
+						REDRAW <= '1';
+					elsif (BUTTON_UP = '1') then
+						MOVE_UP <= '1';
+						REDRAW <= '1';
+					end if;
 				else
 					time_to_next_move  <= time_to_next_move - 1;
 				end if;
-			end if;
-		end if;
-	end process;
-
-	process (CLOCK, RESET_N)
-	begin
-		if (RESET_N = '0') then
-			REDRAW          <= '0';
-		elsif rising_edge(CLOCK) then
-			if (time_to_next_move = 0)
-			then
-				REDRAW			<= '1';
-			else
-				REDRAW			<= '0';
 			end if;
 		end if;
 	end process;
