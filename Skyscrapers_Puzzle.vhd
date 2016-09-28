@@ -125,6 +125,7 @@ begin
 			BUTTON_LEFT     => not(KEY(1)),
 			BUTTON_DOWN     => not(KEY(2)),
 			BUTTON_UP       => not(KEY(3)),
+			CURSOR_POS		 => cursor_pos,
 			MOVE_RIGHT		 => move_right,
 			MOVE_LEFT       => move_left,
 			MOVE_DOWN		 => move_down,

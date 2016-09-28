@@ -15,6 +15,8 @@ entity Skyscrapers_Puzzle_Controller is
 		BUTTON_LEFT    : in  std_logic;
 		BUTTON_DOWN    : in  std_logic;
 		BUTTON_UP		: in  std_logic;
+		
+		CURSOR_POS		: in CURSOR_POS_TYPE;
 
 		-- Connections with Data-Path
 		MOVE_RIGHT		: out std_logic;
@@ -56,16 +58,16 @@ begin
 				if (time_to_next_move = 0) then
 					time_to_next_move  <= MOVEMENT_SPEED - 1;
 					move_time          <= '1';
-					if (BUTTON_RIGHT = '1') then
+					if (BUTTON_RIGHT = '1' and cursor_pos(1) < 3) then
 						MOVE_RIGHT <= '1';
 						REDRAW <= '1';
-					elsif (BUTTON_LEFT = '1') then
+					elsif (BUTTON_LEFT = '1' and cursor_pos(1) > 0) then
 						MOVE_LEFT <= '1';
 						REDRAW <= '1';
-					elsif (BUTTON_DOWN = '1') then
+					elsif (BUTTON_DOWN = '1' and cursor_pos(0) < 3) then
 						MOVE_DOWN <= '1';
 						REDRAW <= '1';
-					elsif (BUTTON_UP = '1') then
+					elsif (BUTTON_UP = '1' and cursor_pos(0) > 0) then
 						MOVE_UP <= '1';
 						REDRAW <= '1';
 					end if;
