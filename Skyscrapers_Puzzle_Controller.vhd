@@ -17,7 +17,7 @@ entity Skyscrapers_Puzzle_Controller is
 end entity;
 
 architecture behavioral of Skyscrapers_Puzzle_Controller is
-	constant MOVEMENT_SPEED       : integer := 300;
+	constant MOVEMENT_SPEED       : integer := 25;
 	signal   time_to_next_move    : integer range 0 to MOVEMENT_SPEED-1;
 	signal   move_time            : std_logic;
 begin
