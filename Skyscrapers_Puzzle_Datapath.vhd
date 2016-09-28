@@ -25,21 +25,14 @@ entity Skyscrapers_Puzzle_Datapath is
 end entity;
 
 architecture behavior of Skyscrapers_Puzzle_Datapath is
-	signal current_status		: MATRIX_TYPE := (others => (others => 0)); -- Init matrix with 0 values
-	signal game_win				: std_logic := '0';
-	signal constraint_array		: CONSTRAINTS_TYPE;
+	signal constraint_array		: CONSTRAINTS_TYPE := ((1, 2, 3, 3), (1, 2, 2, 3), (3, 2, 2, 1), (3, 3, 2, 1));
 	signal cursor_position		: CURSOR_POS_TYPE;
 	signal num_rows				: integer := 4;
 	
 begin
-	process(CLOCK, RESET_N, current_status, constraint_array, game_win, cursor_position, num_rows)
+	process(CLOCK, RESET_N, constraint_array, cursor_position, num_rows)
 	begin
-		if (RESET_N='0')
-		then
-			-- Initializing dummy matrix
-			current_status <= (others => (others => 0));
-			game_win <= '0';
-			constraints <= ((1, 2, 3, 3), (1, 2, 2, 3), (3, 2, 2, 1), (3, 3, 2, 1));
+		if (RESET_N='0') then
 			CURSOR_POS <= (0, 0);
 			cursor_position <= (0, 0);
 		elsif (rising_edge(CLOCK)) then

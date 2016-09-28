@@ -195,6 +195,8 @@ begin
             HEX2 <="1000000";
             HEX3 <="1000000";
          elsif (rising_edge(CLOCK)) then
+				HEX1 <="1000000";
+				HEX3 <="1000000";
             -- Column
             case cursor_pos(1) is
                when 0 => HEX0 <="1000000";  -- '0'

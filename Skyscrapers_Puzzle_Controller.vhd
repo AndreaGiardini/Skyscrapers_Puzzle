@@ -32,21 +32,18 @@ end entity;
 architecture behavioral of Skyscrapers_Puzzle_Controller is
 	constant MOVEMENT_SPEED       : integer := 25;
 	signal   time_to_next_move    : integer range 0 to MOVEMENT_SPEED-1;
-	signal   move_time            : std_logic;
 begin
 
 	TimedMove : process(CLOCK, RESET_N)
 	begin
 		if (RESET_N = '0') then
 			time_to_next_move  <= 0;
-			move_time          <= '0';
 			MOVE_RIGHT <= '0';
 			MOVE_LEFT <= '0';
 			MOVE_DOWN <= '0';
 			MOVE_UP <= '0';
 			REDRAW <= '1';
 		elsif rising_edge(CLOCK) then
-			move_time <= '0';
 			MOVE_RIGHT <= '0';
 			MOVE_LEFT <= '0';
 			MOVE_DOWN <= '0';
@@ -57,7 +54,6 @@ begin
 				REDRAW <= '0';
 				if (time_to_next_move = 0) then
 					time_to_next_move  <= MOVEMENT_SPEED - 1;
-					move_time          <= '1';
 					if (BUTTON_RIGHT = '1' and cursor_pos(1) < 3) then
 						MOVE_RIGHT <= '1';
 						REDRAW <= '1';
