@@ -10,12 +10,7 @@ entity Skyscrapers_Puzzle_Controller is
 		CLOCK				: in  std_logic;
 		RESET_N        : in  std_logic;
 		TIME_10MS      : in  std_logic;
-		
-		-- Connections with Datapath
-		MATRIX			: in MATRIX_TYPE; -- (rows, columns)
-		CONSTRAINTS		: in CONSTRAINTS_TYPE; -- Index 0: LEFT, Index 1: TOP, Index 2: BOTTOM, Index 3: RIGHT
-		CURSOR_POS		: in CURSOR_POS_TYPE;
-		
+
 		-- Connections with View
 		REDRAW			: out	std_logic
 	);

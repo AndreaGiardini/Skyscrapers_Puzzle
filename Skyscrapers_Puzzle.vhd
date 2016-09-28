@@ -45,21 +45,15 @@ architecture behavioral of Skyscrapers_Puzzle is
 	signal fb_color           : color_type;
 	signal time_10ms          : std_logic;
 	signal redraw             : std_logic;
-	signal rotate             : std_logic;
 	signal can_move_left      : std_logic;
 	signal can_move_right     : std_logic;
 	signal can_move_down      : std_logic;
-	signal can_rotate         : std_logic;
 	signal row_index          : integer range 0 to (BOARD_ROWS-1);
 	signal row_is_complete    : std_logic;
 	signal clear              : std_logic;
 	signal move_left          : std_logic;
 	signal move_right         : std_logic;
 	signal move_down          : std_logic;	
-	signal merge              : std_logic;
-	signal remove_row         : std_logic;
-	signal new_piece          : std_logic;
-	--signal new_piece_type     : piece_type;
 	signal query_cell         : block_pos_type;
 	signal query_cell_content : board_cell_type;
 	signal reset_sync_reg     : std_logic;
@@ -122,10 +116,7 @@ begin
 			CLOCK           => clock,
 			RESET_N         => RESET_N,
 			TIME_10MS       => time_10ms,
-			REDRAW          => redraw,
-			MATRIX			=>	matrix,
-			CONSTRAINTS		=> constraints,
-			CURSOR_POS		=> cursor_pos
+			REDRAW          => redraw
 		);
 		
 	datapath : entity work.Skyscrapers_Puzzle_Datapath
