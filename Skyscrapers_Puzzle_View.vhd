@@ -127,9 +127,28 @@ begin
 							end if;
 						when DRAW_BOARD_CONSTRAINTS =>
 						
-                     if (init_constraints = '0') then                           
-                         pixel_x_start_pos := LEFT_MARGIN / 4;
-                         pixel_y_start_pos := BLOCK_SIZE + BLOCK_SIZE * constraints_r;
+                     if (init_constraints = '0') then
+								 case constraints_c is
+									when 0 =>
+										-- left vertical drawing
+										pixel_x_start_pos := LEFT_MARGIN / 4;
+										pixel_y_start_pos := BLOCK_SIZE * ( constraints_r + 1 );
+									when 1 =>
+										-- top horizontal drawing
+										pixel_x_start_pos := LEFT_MARGIN / 5 + BLOCK_SIZE * ( constraints_r + 1 );
+										pixel_y_start_pos := 0;
+									when 2 =>
+										-- bottom horizontal drawing
+										pixel_x_start_pos := LEFT_MARGIN / 5 + BLOCK_SIZE * ( constraints_r + 1 );
+										pixel_y_start_pos := BLOCK_SIZE * 4 + BLOCK_SIZE * 3 / 4;
+									when 3 =>
+										-- right vertical drawing
+										pixel_x_start_pos := LEFT_MARGIN / 4 + BLOCK_SIZE * 5;
+										pixel_y_start_pos := BLOCK_SIZE * ( constraints_r + 1 );
+									when others =>
+										pixel_x_start_pos := 0;
+										pixel_y_start_pos := 0;
+								 end case;
                          pixel_x := pixel_x_start_pos;                   
                          pixel_y := pixel_y_start_pos;
 								 init_constraints := '1';
@@ -137,6 +156,7 @@ begin
 						
 							if (((pixel_x - pixel_x_start_pos) /= SPRITE_SIZE) and ((pixel_y - pixel_y_start_pos) /= SPRITE_SIZE)) then
 								case CONSTRAINTS(constraints_c,constraints_r) is
+									when 0 => FB_COLOR <= zero_sprite(sprite_index);
 									when 1 => FB_COLOR <= one_sprite(sprite_index);
 									when 2 => FB_COLOR <= two_sprite(sprite_index);
 									when 3 => FB_COLOR <= three_sprite(sprite_index);
@@ -148,7 +168,6 @@ begin
 									when 9 => FB_COLOR <= nine_sprite(sprite_index);
 									when others => FB_COLOR <= nine_sprite(sprite_index);
 								end case;
-								--FB_COLOR 	 <= nine_sprite(sprite_index);
                         FB_X0        <= pixel_x;                    
                         FB_Y0        <= pixel_y;                    
                         FB_X1        <= pixel_x+1;                  
@@ -167,6 +186,14 @@ begin
 								sprite_index := 0;
 							end if;
 							if ( constraints_r = 4 ) then
+								-- Left / top / bottom / right Line completed
+								init_constraints := '0';
+								sprite_index := 0;
+								constraints_r := 0;
+								constraints_c := constraints_c + 1;
+							end if;
+							if ( constraints_c = 4 ) then
+								-- Drawing constraints completed
 								substate  <= FLIP_FRAMEBUFFER;
 								constraints_r := 0;
 								constraints_c := 0;
