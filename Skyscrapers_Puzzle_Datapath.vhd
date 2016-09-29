@@ -32,6 +32,7 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 begin
 	process(CLOCK, RESET_N, constraint_array, cursor_position, num_rows)
 	begin
+		CONSTRAINTS <= constraint_array;
 		if (RESET_N='0') then
 			CURSOR_POS <= (0, 0);
 			cursor_position <= (0, 0);

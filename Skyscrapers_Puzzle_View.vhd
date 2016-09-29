@@ -52,8 +52,8 @@ begin
 	QUERY_CELL <= query_cell_r;
 	
 	process(CLOCK, RESET_N)
-		variable sprite_index, pixel_x, pixel_y, pixel_x_start_pos, pixel_y_start_pos : integer := 0;
-		variable init_constraints, constraints_r, constraints_c : std_logic := '0';
+		variable sprite_index, pixel_x, pixel_y, pixel_x_start_pos, pixel_y_start_pos, constraints_r, constraints_c	: integer := 0;
+		variable init_constraints: std_logic := '0';
 	begin
 	
 		if (RESET_N = '0')
@@ -129,14 +129,26 @@ begin
 						
                      if (init_constraints = '0') then                           
                          pixel_x_start_pos := LEFT_MARGIN / 4;
-                         pixel_y_start_pos := TOP_MARGIN / 12;
+                         pixel_y_start_pos := BLOCK_SIZE + BLOCK_SIZE * constraints_r;
                          pixel_x := pixel_x_start_pos;                   
                          pixel_y := pixel_y_start_pos;
 								 init_constraints := '1';
                      end if;
 						
 							if (((pixel_x - pixel_x_start_pos) /= SPRITE_SIZE) and ((pixel_y - pixel_y_start_pos) /= SPRITE_SIZE)) then
-                        FB_COLOR 	 <= nine_sprite(sprite_index);     
+								case CONSTRAINTS(constraints_c,constraints_r) is
+									when 1 => FB_COLOR <= one_sprite(sprite_index);
+									when 2 => FB_COLOR <= two_sprite(sprite_index);
+									when 3 => FB_COLOR <= three_sprite(sprite_index);
+									when 4 => FB_COLOR <= four_sprite(sprite_index);
+									when 5 => FB_COLOR <= five_sprite(sprite_index);
+									when 6 => FB_COLOR <= six_sprite(sprite_index);
+									when 7 => FB_COLOR <= seven_sprite(sprite_index);
+									when 8 => FB_COLOR <= eight_sprite(sprite_index);
+									when 9 => FB_COLOR <= nine_sprite(sprite_index);
+									when others => FB_COLOR <= nine_sprite(sprite_index);
+								end case;
+								--FB_COLOR 	 <= nine_sprite(sprite_index);
                         FB_X0        <= pixel_x;                    
                         FB_Y0        <= pixel_y;                    
                         FB_X1        <= pixel_x+1;                  
@@ -150,9 +162,14 @@ begin
                             pixel_y := pixel_y + 1;                 
                         end if;
 							else
-								substate  <= FLIP_FRAMEBUFFER;
+								constraints_r := constraints_r + 1;
 								init_constraints := '0';
 								sprite_index := 0;
+							end if;
+							if ( constraints_r = 4 ) then
+								substate  <= FLIP_FRAMEBUFFER;
+								constraints_r := 0;
+								constraints_c := 0;
 							end if;
 						when FLIP_FRAMEBUFFER =>
 							FB_FLIP <= '1';
