@@ -3,6 +3,7 @@ use ieee.numeric_std.all;
 use ieee.std_logic_1164.all;
 use work.Skyscrapers_Puzzle_Types.all;
 use work.Skyscrapers_Puzzle_Package.all;
+use work.Skyscrapers_Puzzle_Sprites.all;
 use work.vga_package.all;
 
 entity Skyscrapers_Puzzle_View is
@@ -41,15 +42,18 @@ architecture behavioral of Skyscrapers_Puzzle_View is
 	constant BLOCK_SPACING	: integer := 5;
 	
 	type state_type is (IDLE, WAIT_FOR_READY, DRAWING);
-	type substate_type is (CLEAR_SCENE, DRAW_BOARD_OUTLINE, DRAW_BOARD_BLOCKS, FLIP_FRAMEBUFFER);
+	type substate_type is (CLEAR_SCENE, DRAW_BOARD_OUTLINE, DRAW_BOARD_BLOCKS, DRAW_BOARD_CONSTRAINTS, FLIP_FRAMEBUFFER);
 	signal state 			: state_type;
 	signal substate 		: substate_type;
 	signal query_cell_r 	: block_pos_type;
 	
 begin
+
 	QUERY_CELL <= query_cell_r;
 	
 	process(CLOCK, RESET_N)
+		variable sprite_index, pixel_x, pixel_y, pixel_x_start_pos, pixel_y_start_pos : integer := 0;
+		variable init_constraints, constraints_r, constraints_c : std_logic := '0';
 	begin
 	
 		if (RESET_N = '0')
@@ -118,8 +122,37 @@ begin
 									query_cell_r.row <= query_cell_r.row + 1;
 								else
 									query_cell_r.row <= 0;
-									substate  <= FLIP_FRAMEBUFFER;
+									substate  <= DRAW_BOARD_CONSTRAINTS;
 								end if;
+							end if;
+						when DRAW_BOARD_CONSTRAINTS =>
+						
+                     if (init_constraints = '0') then                           
+                         pixel_x_start_pos := LEFT_MARGIN / 4;
+                         pixel_y_start_pos := TOP_MARGIN / 12;
+                         pixel_x := pixel_x_start_pos;                   
+                         pixel_y := pixel_y_start_pos;
+								 init_constraints := '1';
+                     end if;
+						
+							if (((pixel_x - pixel_x_start_pos) /= SPRITE_SIZE) and ((pixel_y - pixel_y_start_pos) /= SPRITE_SIZE)) then
+                        FB_COLOR 	 <= nine_sprite(sprite_index);     
+                        FB_X0        <= pixel_x;                    
+                        FB_Y0        <= pixel_y;                    
+                        FB_X1        <= pixel_x+1;                  
+                        FB_Y1        <= pixel_y+1;                  
+                        FB_FILL_RECT <= '1';                        
+                        sprite_index := sprite_index + 1;           
+                                                                                  
+                        pixel_x := pixel_x + 1;                     
+                        if ((pixel_x - pixel_x_start_pos) = SPRITE_SIZE) then 
+                            pixel_x := pixel_x_start_pos;           
+                            pixel_y := pixel_y + 1;                 
+                        end if;
+							else
+								substate  <= FLIP_FRAMEBUFFER;
+								init_constraints := '0';
+								sprite_index := 0;
 							end if;
 						when FLIP_FRAMEBUFFER =>
 							FB_FLIP <= '1';
