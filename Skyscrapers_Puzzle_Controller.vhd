@@ -11,11 +11,6 @@ entity Skyscrapers_Puzzle_Controller is
 		keyboardData: IN STD_LOGIC_VECTOR (7 downto 0);
 		RESET_N        : in  std_logic;
 		TIME_10MS      : in  std_logic;
-
-		BUTTON_RIGHT   : in  std_logic;
-		BUTTON_LEFT    : in  std_logic;
-		BUTTON_DOWN    : in  std_logic;
-		BUTTON_UP		: in  std_logic;
 		
 		CURSOR_POS		: in CURSOR_POS_TYPE;
 

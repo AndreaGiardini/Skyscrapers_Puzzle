@@ -9,7 +9,6 @@ entity Skyscrapers_Puzzle is
 	port
 	(
 		CLOCK_50            : in  std_logic;
-		KEY                 : in  std_logic_vector(3 downto 0);
 		PS2_CLK				  : IN  STD_LOGIC;
 		PS2_DAT				  : IN  STD_LOGIC;
 		HEX0                : out  std_logic_vector(6 downto 0);
@@ -152,10 +151,6 @@ Keyboard: entity work.Skyscrapers_Puzzle_Keyboard
 			keyboardData	=> keyCode,
 			RESET_N         => RESET_N,
 			TIME_10MS       => time_10ms,
-			BUTTON_RIGHT    => not(KEY(0)),
-			BUTTON_LEFT     => not(KEY(1)),
-			BUTTON_DOWN     => not(KEY(2)),
-			BUTTON_UP       => not(KEY(3)),
 			CURSOR_POS		 => cursor_pos,
 			MOVE_RIGHT		 => move_right,
 			MOVE_LEFT       => move_left,
