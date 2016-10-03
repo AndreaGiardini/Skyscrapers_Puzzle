@@ -59,6 +59,7 @@ architecture behavioral of Skyscrapers_Puzzle is
 	signal move_right         : std_logic;
 	signal move_down          : std_logic;	
 	signal move_up				  : std_logic;
+	signal keys					  : std_logic_vector(3 downto 0);
 	signal query_cell         : block_pos_type;
 	signal query_cell_content : board_cell_type;
 	signal reset_sync_reg     : std_logic;
@@ -141,6 +142,7 @@ begin
 			MOVE_LEFT       => move_left,
 			MOVE_DOWN		 => move_down,
 			MOVE_UP         => move_up,
+			KEYS				 => keys,
 			MATRIX			=>	matrix,
 			CONSTRAINTS		=> constraints,
 			CURSOR_POS		=> cursor_pos
