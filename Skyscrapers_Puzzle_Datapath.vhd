@@ -22,7 +22,8 @@ entity Skyscrapers_Puzzle_Datapath is
 		VICTORY			: out std_logic;
 		MATRIX			: out MATRIX_TYPE; -- (rows, columns)
 		CONSTRAINTS		: out CONSTRAINTS_TYPE; -- Index 0: LEFT, Index 1: TOP, Index 2: BOTTOM, Index 3: RIGHT
-		CURSOR_POS		: out CURSOR_POS_TYPE
+		CURSOR_POS		: out CURSOR_POS_TYPE;
+		WINNER			: out std_logic
 	);
 end entity;
 
@@ -31,12 +32,18 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	signal matrix_array			: MATRIX_TYPE := ((others=> (others=> 0)));
 	signal cursor_position		: CURSOR_POS_TYPE;
 	signal num_rows				: integer := 4;
+	signal win						: std_logic := '0';
 	
 begin
 	process(CLOCK, RESET_N, constraint_array, cursor_position, num_rows)
+		variable max : integer := 0;
+		variable top1 : integer := 0;
+		variable top2 : integer := 0;
+		variable r : integer := 0;
 	begin
 		CONSTRAINTS <= constraint_array;
 		if (RESET_N='0') then
+			win <= '0'; WINNER <= '0';
 			CURSOR_POS <= (0, 0);
 			cursor_position <= (0, 0);
 			matrix_array <= ((others=> (others=> 0)));
@@ -74,6 +81,35 @@ begin
 			elsif ( KEYS = "1001" ) then
 				matrix_array(cursor_position(1), cursor_position(0)) <= 9;
 			end if;
+			
+			-- check matrix constraints
+			WINNER <= win;
+			win <= '1';
+			for r in 0 to 3 loop
+				max := 0;
+				top1 := 0;
+				top2 := 0;
+				
+				for c in 0 to 3 loop
+					if matrix_array(c,r) > max then
+						max :=  matrix_array (c,r);
+						top1 := top1 + 1;
+					end if;
+				end loop;
+				
+				max := 0;
+				for c in 3 downto 0 loop
+					if matrix_array(c,r) > max then
+						max :=  matrix_array (c,r);
+						top2 := top2 + 1;
+					end if;
+				end loop;
+				
+				if constraint_array(0,r) /= top1 or constraint_array(3,r) /= top2 then
+					win <= '0';
+				end if;
+			end loop;
+			
 		end if;
 	end process;
 end behavior;
