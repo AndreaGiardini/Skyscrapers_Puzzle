@@ -209,9 +209,10 @@ begin
 								init_constraints := '1';
                      end if;
 							
-							if (((pixel_x - pixel_x_start_pos) /= SPRITE_SIZE) and ((pixel_y - pixel_y_start_pos) /= SPRITE_SIZE)) then
+							if (((pixel_x - pixel_x_start_pos) /= SPRITE_SIZE)
+							 and ((pixel_y - pixel_y_start_pos) /= SPRITE_SIZE)
+							 and MATRIX(constraints_c,constraints_r) /= 0) then
 								case MATRIX(constraints_c,constraints_r) is
-									when 0 => FB_COLOR <= zero_sprite(sprite_index);
 									when 1 => FB_COLOR <= one_sprite(sprite_index);
 									when 2 => FB_COLOR <= two_sprite(sprite_index);
 									when 3 => FB_COLOR <= three_sprite(sprite_index);
