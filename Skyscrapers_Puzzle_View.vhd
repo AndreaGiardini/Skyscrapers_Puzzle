@@ -241,15 +241,15 @@ begin
 								sprite_index := 0;
 							end if;
 							if ( constraints_r = 4 ) then
-								-- Left / top / bottom / right Line completed
+								-- Column completed
 								init_constraints := '0';
 								sprite_index := 0;
 								constraints_r := 0;
 								constraints_c := constraints_c + 1;
 							end if;
 							if ( constraints_c = 4 ) then
-								-- Drawing constraints completed
-								substate  <= DRAW_BOARD_NUMBERS;
+								-- Drawing numbers completed
+								substate  <= FLIP_FRAMEBUFFER;
 								constraints_r := 0;
 								constraints_c := 0;
 							end if;						
