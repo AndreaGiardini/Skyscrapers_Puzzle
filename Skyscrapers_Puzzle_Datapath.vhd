@@ -12,6 +12,8 @@ entity Skyscrapers_Puzzle_Datapath is
 		MOVE_LEFT      : in std_logic;
 		MOVE_DOWN		: in std_logic;
 		MOVE_UP			: in std_logic;
+		
+		KEYS				: in std_logic_vector(3 downto 0);
 		--MOVE_DIR			: in	std_logic_vector(3 downto 0);
 		--NUM_ROWS			: in	integer; -- Number of rows/columns and constraints (n)
 		--INPUT_NUMBER	: in	integer; -- Number to input at cursor position
@@ -26,6 +28,7 @@ end entity;
 
 architecture behavior of Skyscrapers_Puzzle_Datapath is
 	signal constraint_array		: CONSTRAINTS_TYPE := ((1, 2, 3, 3), (1, 2, 2, 3), (3, 2, 2, 1), (3, 3, 2, 1));
+	signal matrix_array			: MATRIX_TYPE := ((others=> (others=> 0)));
 	signal cursor_position		: CURSOR_POS_TYPE;
 	signal num_rows				: integer := 4;
 	
@@ -46,6 +49,29 @@ begin
 				cursor_position(0) <= cursor_position(0) + 1;
 			elsif (MOVE_UP = '1') then
 				cursor_position(0) <= cursor_position(0) - 1;
+			end if;
+			
+			MATRIX <= matrix_array;
+			if ( KEYS = "0000" ) then
+				matrix_array(cursor_position(0), cursor_position(1)) <= 0;
+			elsif ( KEYS = "0001" ) then
+				matrix_array(cursor_position(0), cursor_position(1)) <= 1;
+			elsif ( KEYS = "0010" ) then
+				matrix_array(cursor_position(0), cursor_position(1)) <= 2;
+			elsif ( KEYS = "0011" ) then
+				matrix_array(cursor_position(0), cursor_position(1)) <= 3;
+			elsif ( KEYS = "0100" ) then
+				matrix_array(cursor_position(0), cursor_position(1)) <= 4;
+			elsif ( KEYS = "0101" ) then
+				matrix_array(cursor_position(0), cursor_position(1)) <= 5;
+			elsif ( KEYS = "0110" ) then
+				matrix_array(cursor_position(0), cursor_position(1)) <= 6;
+			elsif ( KEYS = "0111" ) then
+				matrix_array(cursor_position(0), cursor_position(1)) <= 7;
+			elsif ( KEYS = "1000" ) then
+				matrix_array(cursor_position(0), cursor_position(1)) <= 8;
+			elsif ( KEYS = "1001" ) then
+				matrix_array(cursor_position(0), cursor_position(1)) <= 9;
 			end if;
 		end if;
 	end process;

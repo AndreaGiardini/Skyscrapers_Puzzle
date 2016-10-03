@@ -169,6 +169,7 @@ Keyboard: entity work.Skyscrapers_Puzzle_Keyboard
 			MOVE_LEFT       => move_left,
 			MOVE_DOWN		 => move_down,
 			MOVE_UP         => move_up,
+			KEYS				 => number,
 			MATRIX			=>	matrix,
 			CONSTRAINTS		=> constraints,
 			CURSOR_POS		=> cursor_pos
