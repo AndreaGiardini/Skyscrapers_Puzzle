@@ -66,6 +66,7 @@ architecture behavioral of Skyscrapers_Puzzle is
 	signal move_right         : std_logic;
 	signal move_down          : std_logic;	
 	signal move_up				  : std_logic;
+	signal number				  : std_logic_vector (3 downto 0);
 	signal query_cell         : block_pos_type;
 	signal query_cell_content : board_cell_type;
 	signal reset_sync_reg     : std_logic;
@@ -148,7 +149,7 @@ Keyboard: entity work.Skyscrapers_Puzzle_Keyboard
 	controller : entity work.Skyscrapers_Puzzle_Controller
 		port map (
 			CLOCK           => clock,
-			keyboardData	=> keyCode,
+			keyboardData	 => keyCode,
 			RESET_N         => RESET_N,
 			TIME_10MS       => time_10ms,
 			CURSOR_POS		 => cursor_pos,
@@ -156,6 +157,7 @@ Keyboard: entity work.Skyscrapers_Puzzle_Keyboard
 			MOVE_LEFT       => move_left,
 			MOVE_DOWN		 => move_down,
 			MOVE_UP         => move_up,
+			NUMBER			 => number,
 			REDRAW          => redraw
 		);
 		
