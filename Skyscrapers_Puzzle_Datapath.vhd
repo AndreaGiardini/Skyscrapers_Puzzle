@@ -39,6 +39,7 @@ begin
 		if (RESET_N='0') then
 			CURSOR_POS <= (0, 0);
 			cursor_position <= (0, 0);
+			matrix_array <= ((others=> (others=> 0)));
 		elsif (rising_edge(CLOCK)) then
 			CURSOR_POS <= cursor_position;
 			if (MOVE_RIGHT = '1') then
