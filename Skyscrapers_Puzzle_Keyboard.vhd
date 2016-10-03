@@ -57,30 +57,22 @@ begin
 	begin
 		if (scanCodeReady'event and scanCodeReady = '1')
 		then
-			if (scanCode /= breakCode and scanCode /= arrowCode )then
+			case breakReceived is
+			when "00" => 
+				if (scanCode = breakCode)
+				then
+					breakReceived <= "01";
+				end if;
 				keyCode <= scanCode;
-			end if;
-			
---			case breakReceived is
---			when "00" => 
---				if (scanCode = breakCode)
---				then
---					breakReceived <= "01";
---				end if;
---				keyCode <= scanCode;
---			when "01" =>
---				breakReceived <= "10";
---				keyCode <= breakCode;
---			when "10" =>
---				if ( scanCode = arrowCode) then
---					breakReceived <= "00";
---				else
---					breakReceived <= "01";
---					keyCode <= scanCode;
---				end if;
---			when others => 
---				keyCode <= scanCode;
---			end case;
+			when "01" =>
+				breakReceived <= "10";
+				keyCode <= breakCode;
+			when "10" => 
+				breakReceived <= "00";
+				keyCode <= breakCode;
+			when others => 
+				keyCode <= scanCode;
+			end case;
 		end if;
 	end process sendData;
 

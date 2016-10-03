@@ -53,7 +53,7 @@ begin
 			MOVE_LEFT <= '0';
 			MOVE_DOWN <= '0';
 			MOVE_UP <= '0';
-			NUMBER <= "0000";
+			NUMBER <= "1111";
 			REDRAW <= '1';
 		elsif rising_edge(CLOCK) then
 			MOVE_RIGHT <= '0';
@@ -63,7 +63,6 @@ begin
 			NUMBER <= "1111";
 			REDRAW <= '0';			
 			if (TIME_10MS = '1') then
-				MOVE_RIGHT <= '0';
 				REDRAW <= '0';
 				if (time_to_next_move = 0) then
 					time_to_next_move  <= MOVEMENT_SPEED - 1;
@@ -123,7 +122,7 @@ begin
 							MOVE_LEFT <= '0';
 							MOVE_DOWN <= '0';
 							MOVE_UP <= '0';
-							NUMBER <= "0000";
+							NUMBER <= "1111";
 					end case;	
 				else
 					time_to_next_move  <= time_to_next_move - 1;
