@@ -10,6 +10,8 @@ entity Skyscrapers_Puzzle is
 	(
 		CLOCK_50            : in  std_logic;
 		KEY                 : in  std_logic_vector(3 downto 0);
+		PS2_CLK				  : IN  STD_LOGIC;
+		PS2_DAT				  : IN  STD_LOGIC;
 		HEX0                : out  std_logic_vector(6 downto 0);
 		HEX1                : out  std_logic_vector(6 downto 0);
 		HEX2                : out  std_logic_vector(6 downto 0);
@@ -33,6 +35,12 @@ entity Skyscrapers_Puzzle is
 end;
 
 architecture behavioral of Skyscrapers_Puzzle is
+	-- Output Clock Generator
+	signal clock_25Mhz: STD_LOGIC;
+	
+	-- Output Keyboard
+	signal keyCode: STD_LOGIC_VECTOR(7 downto 0);
+
 	signal clock              : std_logic;
 	signal clock_vga          : std_logic;
 	signal RESET_N            : std_logic;
@@ -67,6 +75,28 @@ architecture behavioral of Skyscrapers_Puzzle is
 	signal constraints			: CONSTRAINTS_TYPE;
 	signal cursor_pos				: CURSOR_POS_TYPE;
 begin
+
+ClockDivider: entity work.Skyscrapers_Puzzle_ClockGenerator
+	port map
+	(
+		-- INPUT
+		clock			=> CLOCK_50,
+		
+		-- OUTPUT
+		clock_mezzi 	=> clock_25Mhz
+	);
+
+Keyboard: entity work.Skyscrapers_Puzzle_Keyboard
+	port map
+	(
+		-- INPUT
+		clk				=> clock_25Mhz,
+		keyboardClock	=> PS2_CLK,
+		keyboardData	=> PS2_DAT,
+		
+		-- OUTPUT	
+		keyCode			=> keyCode		
+	);
 
 	pll : entity work.PLL
 		port map (
@@ -119,6 +149,7 @@ begin
 	controller : entity work.Skyscrapers_Puzzle_Controller
 		port map (
 			CLOCK           => clock,
+			keyboardData	=> keyCode,
 			RESET_N         => RESET_N,
 			TIME_10MS       => time_10ms,
 			BUTTON_RIGHT    => not(KEY(0)),
