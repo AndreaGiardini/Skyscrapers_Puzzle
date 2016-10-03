@@ -51,26 +51,27 @@ begin
 				cursor_position(0) <= cursor_position(0) - 1;
 			end if;
 			
+			MATRIX <= matrix_array;
 			if ( KEYS = "0000" ) then
-				matrix(cursor_position(0), cursor_position(1)) <= 0;
+				matrix_array(cursor_position(0), cursor_position(1)) <= 0;
 			elsif ( KEYS = "0001" ) then
-				matrix(cursor_position(0), cursor_position(1)) <= 1;
+				matrix_array(cursor_position(0), cursor_position(1)) <= 1;
 			elsif ( KEYS = "0010" ) then
-				matrix(cursor_position(0), cursor_position(1)) <= 2;
+				matrix_array(cursor_position(0), cursor_position(1)) <= 2;
 			elsif ( KEYS = "0011" ) then
-				matrix(cursor_position(0), cursor_position(1)) <= 3;
+				matrix_array(cursor_position(0), cursor_position(1)) <= 3;
 			elsif ( KEYS = "0100" ) then
-				matrix(cursor_position(0), cursor_position(1)) <= 4;
+				matrix_array(cursor_position(0), cursor_position(1)) <= 4;
 			elsif ( KEYS = "0101" ) then
-				matrix(cursor_position(0), cursor_position(1)) <= 5;
+				matrix_array(cursor_position(0), cursor_position(1)) <= 5;
 			elsif ( KEYS = "0110" ) then
-				matrix(cursor_position(0), cursor_position(1)) <= 6;
+				matrix_array(cursor_position(0), cursor_position(1)) <= 6;
 			elsif ( KEYS = "0111" ) then
-				matrix(cursor_position(0), cursor_position(1)) <= 7;
+				matrix_array(cursor_position(0), cursor_position(1)) <= 7;
 			elsif ( KEYS = "1000" ) then
-				matrix(cursor_position(0), cursor_position(1)) <= 8;
+				matrix_array(cursor_position(0), cursor_position(1)) <= 8;
 			elsif ( KEYS = "1001" ) then
-				matrix(cursor_position(0), cursor_position(1)) <= 9;
+				matrix_array(cursor_position(0), cursor_position(1)) <= 9;
 			end if;
 		end if;
 	end process;
