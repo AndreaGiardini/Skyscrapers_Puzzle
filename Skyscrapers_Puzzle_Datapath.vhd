@@ -36,8 +36,72 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	signal num_rows				: integer := 4;
 	signal win						: std_logic := '0';
 	
+	procedure remove_solution_from_row (
+		row		: integer;
+		number	: integer
+	) is
+	begin
+		for c in 0 to 3 loop
+			solutions(row, c, number) <= '0';
+		end loop;
+	end;
+
+	procedure remove_solution_from_column (
+		column	: integer;
+		number	: integer
+	) is
+	begin
+		for r in 0 to 3 loop
+			solutions(r, column, number) <= '0';
+		end loop;
+	end;
+
+	procedure add_solution_to_row (
+		row		: integer;
+		number	: integer
+	) is
+	begin
+		for c in 0 to 3 loop
+			solutions(row, c, number) <= '1';
+		end loop;
+	end;
+
+	procedure add_solution_to_column (
+		column	: integer;
+		number	: integer
+	) is
+	begin
+		for r in 0 to 3 loop
+			solutions(r, column, number) <= '1';
+		end loop;
+	end;
+
+	procedure insert_value (
+		row		: integer;
+		column	: integer;
+		number	: integer
+	) is
+	begin
+		if (number /= 0) then
+			remove_solution_from_row(row, number-1);
+			remove_solution_from_column(column, number-1);
+			for n in 0 to 3 loop
+				if (n = number - 1) then
+					solutions(row, column, n) <= '1';
+				else
+					
+					solutions(row, column, n) <= '0';
+				end if;
+			end loop;
+		else
+			add_solution_to_row(row, matrix_array(row, column));
+			add_solution_to_column(column, matrix_array(row, column));
+		end if;
+	end;
+		
 begin
-	process(CLOCK, RESET_N, SOLVE, constraint_array, cursor_position, num_rows)
+
+	process(CLOCK, RESET_N, SOLVE, cursor_position)
 		variable max : integer := 0;
 		variable top1 : integer := 0;
 		variable top2 : integer := 0;
@@ -48,6 +112,7 @@ begin
 			win <= '0'; WINNER <= '0';
 			CURSOR_POS <= (0, 0);
 			cursor_position <= (0, 0);
+			solutions <= ((others => (others => (others => '1'))));
 --			matrix_array <= ((others=> (others=> 0)));
 		elsif (rising_edge(CLOCK)) then
 			CURSOR_POS <= cursor_position;
@@ -61,67 +126,34 @@ begin
 				cursor_position(0) <= cursor_position(0) - 1;
 			end if;
 			
---			MATRIX <= matrix_array;
---			if ( KEYS = "0000" ) then
---				matrix_array(cursor_position(1), cursor_position(0)) <= 0;
---			elsif ( KEYS = "0001" ) then
---				matrix_array(cursor_position(1), cursor_position(0)) <= 1;
---			elsif ( KEYS = "0010" ) then
---				matrix_array(cursor_position(1), cursor_position(0)) <= 2;
---			elsif ( KEYS = "0011" ) then
---				matrix_array(cursor_position(1), cursor_position(0)) <= 3;
---			elsif ( KEYS = "0100" ) then
---				matrix_array(cursor_position(1), cursor_position(0)) <= 4;
---			elsif ( KEYS = "0101" ) then
---				matrix_array(cursor_position(1), cursor_position(0)) <= 5;
---			elsif ( KEYS = "0110" ) then
---				matrix_array(cursor_position(1), cursor_position(0)) <= 6;
---			elsif ( KEYS = "0111" ) then
---				matrix_array(cursor_position(1), cursor_position(0)) <= 7;
---			elsif ( KEYS = "1000" ) then
---				matrix_array(cursor_position(1), cursor_position(0)) <= 8;
---			elsif ( KEYS = "1001" ) then
---				matrix_array(cursor_position(1), cursor_position(0)) <= 9;
---			end if;
 			if ( KEYS = "0000" ) then
-				solutions(cursor_position(1), cursor_position(0), 0) <= '1';
-				solutions(cursor_position(1), cursor_position(0), 1) <= '1';
-				solutions(cursor_position(1), cursor_position(0), 2) <= '1';
-				solutions(cursor_position(1), cursor_position(0), 3) <= '1';
+				insert_value(cursor_position(1), cursor_position(0), 0);
 			elsif ( KEYS = "0001" ) then
-				solutions(cursor_position(1), cursor_position(0), 0) <= '1';
-				solutions(cursor_position(1), cursor_position(0), 1) <= '0';
-				solutions(cursor_position(1), cursor_position(0), 2) <= '0';
-				solutions(cursor_position(1), cursor_position(0), 3) <= '0';
+				insert_value(cursor_position(1), cursor_position(0), 1);
 			elsif ( KEYS = "0010" ) then
-				solutions(cursor_position(1), cursor_position(0), 0) <= '0';
-				solutions(cursor_position(1), cursor_position(0), 1) <= '1';
-				solutions(cursor_position(1), cursor_position(0), 2) <= '0';
-				solutions(cursor_position(1), cursor_position(0), 3) <= '0';
+				insert_value(cursor_position(1), cursor_position(0), 2);
 			elsif ( KEYS = "0011" ) then
-				solutions(cursor_position(1), cursor_position(0), 0) <= '0';
-				solutions(cursor_position(1), cursor_position(0), 1) <= '0';
-				solutions(cursor_position(1), cursor_position(0), 2) <= '1';
-				solutions(cursor_position(1), cursor_position(0), 3) <= '0';
+				insert_value(cursor_position(1), cursor_position(0), 3);
 			elsif ( KEYS = "0100" ) then
-				solutions(cursor_position(1), cursor_position(0), 0) <= '0';
-				solutions(cursor_position(1), cursor_position(0), 1) <= '0';
-				solutions(cursor_position(1), cursor_position(0), 2) <= '0';
-				solutions(cursor_position(1), cursor_position(0), 3) <= '1';
+				insert_value(cursor_position(1), cursor_position(0), 4);
 			end if;
 			
 			if (SOLVE = '1') then
 				-- Regola constraint = 1
 				for r in 0 to 3 loop
-					if (constraint_array(0,r) = 1) then
-						--solutions(0,r,(3<=1, others<=0));
-						--solutions(0,r) <= (3 => '1', others => '0');
-						--solutions := (0 => (r => (3 => '1', others => '0')));
-						--matrix_array(r, 0) <= 4;
-						solutions(0, r, 0) <= '0';
-						solutions(0, r, 1) <= '0';
-						solutions(0, r, 2) <= '0';
-						solutions(0, r, 3) <= '1';
+					if (constraint_array(0, r) = 1) then
+						insert_value(0, r, 4);
+					end if;
+					if (constraint_array(3, r) = 1) then
+						insert_value(3, r, 4);
+					end if;
+				end loop;
+				for c in 0 to 3 loop
+					if (constraint_array(1, c) = 1) then
+						insert_value(c, 0, 4);
+					end if;
+					if (constraint_array(2, c) = 1) then
+						insert_value(c, 3, 4);
 					end if;
 				end loop;
 			end if;
