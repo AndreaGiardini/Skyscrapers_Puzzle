@@ -20,6 +20,7 @@ entity Skyscrapers_Puzzle_Controller is
 		MOVE_DOWN		: out std_logic;
 		MOVE_UP			: out std_logic;
 		NUMBER			: out std_logic_vector (3 downto 0);
+		SOLVE				: out std_logic;
 		
 		-- Connections with View
 		REDRAW			: out	std_logic
@@ -46,6 +47,7 @@ begin
 		constant key7		: std_logic_vector(7 downto 0):=X"3D";
 		constant key8		: std_logic_vector(7 downto 0):=X"3E";
 		constant key9		: std_logic_vector(7 downto 0):=X"46";
+		constant keyENTER	: std_logic_vector(7 downto 0):=X"5A";
 	begin
 		if (RESET_N = '0') then
 			time_to_next_move	<= 0;
@@ -54,6 +56,7 @@ begin
 			MOVE_DOWN 			<= '0';
 			MOVE_UP 				<= '0';
 			NUMBER 				<= "1111";
+			SOLVE		 			<= '0';
 			REDRAW 				<= '1';
 		elsif rising_edge(CLOCK) then
 			MOVE_RIGHT <= '0';
@@ -61,6 +64,7 @@ begin
 			MOVE_DOWN  <= '0';
 			MOVE_UP 	  <= '0';
 			NUMBER 	  <= "1111";
+			SOLVE		  <= '0';
 			REDRAW 	  <= '0';			
 			if (TIME_10MS = '1') then
 				REDRAW <= '0';
@@ -81,12 +85,14 @@ begin
 						when KEY7 	  => NUMBER <= "0111";
 						when KEY8     => NUMBER <= "1000";
 						when KEY9     => NUMBER <= "1001";
+						when KEYENTER => SOLVE  <= '1';
 						when others => -- do nothing
 							MOVE_RIGHT <= '0';
 							MOVE_LEFT  <= '0';
 							MOVE_DOWN  <= '0';
 							MOVE_UP    <= '0';
 							NUMBER 	  <= "1111";
+							SOLVE		  <= '0';
 					end case;
 					REDRAW <= '1';
 				else

@@ -12,6 +12,7 @@ entity Skyscrapers_Puzzle_Datapath is
 		MOVE_LEFT      : in std_logic;
 		MOVE_DOWN		: in std_logic;
 		MOVE_UP			: in std_logic;
+		SOLVE				: in	std_logic;
 		
 		KEYS				: in std_logic_vector(3 downto 0);
 		--MOVE_DIR			: in	std_logic_vector(3 downto 0);
@@ -30,12 +31,13 @@ end entity;
 architecture behavior of Skyscrapers_Puzzle_Datapath is
 	signal constraint_array		: CONSTRAINTS_TYPE := ((1, 2, 3, 3), (1, 2, 2, 3), (3, 2, 2, 1), (3, 3, 2, 1));
 	signal matrix_array			: MATRIX_TYPE := ((others=> (others=> 0)));
+	signal solutions				: SOLUTIONS_TYPE := ((others => (others => (others => '1'))));
 	signal cursor_position		: CURSOR_POS_TYPE;
 	signal num_rows				: integer := 4;
 	signal win						: std_logic := '0';
 	
 begin
-	process(CLOCK, RESET_N, constraint_array, cursor_position, num_rows)
+	process(CLOCK, RESET_N, SOLVE, constraint_array, cursor_position, num_rows)
 		variable max : integer := 0;
 		variable top1 : integer := 0;
 		variable top2 : integer := 0;
@@ -46,7 +48,7 @@ begin
 			win <= '0'; WINNER <= '0';
 			CURSOR_POS <= (0, 0);
 			cursor_position <= (0, 0);
-			matrix_array <= ((others=> (others=> 0)));
+--			matrix_array <= ((others=> (others=> 0)));
 		elsif (rising_edge(CLOCK)) then
 			CURSOR_POS <= cursor_position;
 			if (MOVE_RIGHT = '1') then
@@ -59,27 +61,69 @@ begin
 				cursor_position(0) <= cursor_position(0) - 1;
 			end if;
 			
-			MATRIX <= matrix_array;
+--			MATRIX <= matrix_array;
+--			if ( KEYS = "0000" ) then
+--				matrix_array(cursor_position(1), cursor_position(0)) <= 0;
+--			elsif ( KEYS = "0001" ) then
+--				matrix_array(cursor_position(1), cursor_position(0)) <= 1;
+--			elsif ( KEYS = "0010" ) then
+--				matrix_array(cursor_position(1), cursor_position(0)) <= 2;
+--			elsif ( KEYS = "0011" ) then
+--				matrix_array(cursor_position(1), cursor_position(0)) <= 3;
+--			elsif ( KEYS = "0100" ) then
+--				matrix_array(cursor_position(1), cursor_position(0)) <= 4;
+--			elsif ( KEYS = "0101" ) then
+--				matrix_array(cursor_position(1), cursor_position(0)) <= 5;
+--			elsif ( KEYS = "0110" ) then
+--				matrix_array(cursor_position(1), cursor_position(0)) <= 6;
+--			elsif ( KEYS = "0111" ) then
+--				matrix_array(cursor_position(1), cursor_position(0)) <= 7;
+--			elsif ( KEYS = "1000" ) then
+--				matrix_array(cursor_position(1), cursor_position(0)) <= 8;
+--			elsif ( KEYS = "1001" ) then
+--				matrix_array(cursor_position(1), cursor_position(0)) <= 9;
+--			end if;
 			if ( KEYS = "0000" ) then
-				matrix_array(cursor_position(1), cursor_position(0)) <= 0;
+				solutions(cursor_position(1), cursor_position(0), 0) <= '1';
+				solutions(cursor_position(1), cursor_position(0), 1) <= '1';
+				solutions(cursor_position(1), cursor_position(0), 2) <= '1';
+				solutions(cursor_position(1), cursor_position(0), 3) <= '1';
 			elsif ( KEYS = "0001" ) then
-				matrix_array(cursor_position(1), cursor_position(0)) <= 1;
+				solutions(cursor_position(1), cursor_position(0), 0) <= '1';
+				solutions(cursor_position(1), cursor_position(0), 1) <= '0';
+				solutions(cursor_position(1), cursor_position(0), 2) <= '0';
+				solutions(cursor_position(1), cursor_position(0), 3) <= '0';
 			elsif ( KEYS = "0010" ) then
-				matrix_array(cursor_position(1), cursor_position(0)) <= 2;
+				solutions(cursor_position(1), cursor_position(0), 0) <= '0';
+				solutions(cursor_position(1), cursor_position(0), 1) <= '1';
+				solutions(cursor_position(1), cursor_position(0), 2) <= '0';
+				solutions(cursor_position(1), cursor_position(0), 3) <= '0';
 			elsif ( KEYS = "0011" ) then
-				matrix_array(cursor_position(1), cursor_position(0)) <= 3;
+				solutions(cursor_position(1), cursor_position(0), 0) <= '0';
+				solutions(cursor_position(1), cursor_position(0), 1) <= '0';
+				solutions(cursor_position(1), cursor_position(0), 2) <= '1';
+				solutions(cursor_position(1), cursor_position(0), 3) <= '0';
 			elsif ( KEYS = "0100" ) then
-				matrix_array(cursor_position(1), cursor_position(0)) <= 4;
-			elsif ( KEYS = "0101" ) then
-				matrix_array(cursor_position(1), cursor_position(0)) <= 5;
-			elsif ( KEYS = "0110" ) then
-				matrix_array(cursor_position(1), cursor_position(0)) <= 6;
-			elsif ( KEYS = "0111" ) then
-				matrix_array(cursor_position(1), cursor_position(0)) <= 7;
-			elsif ( KEYS = "1000" ) then
-				matrix_array(cursor_position(1), cursor_position(0)) <= 8;
-			elsif ( KEYS = "1001" ) then
-				matrix_array(cursor_position(1), cursor_position(0)) <= 9;
+				solutions(cursor_position(1), cursor_position(0), 0) <= '0';
+				solutions(cursor_position(1), cursor_position(0), 1) <= '0';
+				solutions(cursor_position(1), cursor_position(0), 2) <= '0';
+				solutions(cursor_position(1), cursor_position(0), 3) <= '1';
+			end if;
+			
+			if (SOLVE = '1') then
+				-- Regola constraint = 1
+				for r in 0 to 3 loop
+					if (constraint_array(0,r) = 1) then
+						--solutions(0,r,(3<=1, others<=0));
+						--solutions(0,r) <= (3 => '1', others => '0');
+						--solutions := (0 => (r => (3 => '1', others => '0')));
+						--matrix_array(r, 0) <= 4;
+						solutions(0, r, 0) <= '0';
+						solutions(0, r, 1) <= '0';
+						solutions(0, r, 2) <= '0';
+						solutions(0, r, 3) <= '1';
+					end if;
+				end loop;
 			end if;
 			
 			-- check matrix constraints
@@ -111,5 +155,50 @@ begin
 			end loop;
 			
 		end if;
+	end process;
+	
+--	process(CLOCK, RESET_N, SOLVE)
+--	begin
+--		if (rising_edge(CLOCK) and SOLVE = '1') then
+--			-- Regola constraint = 1
+--			for r in 0 to 3 loop
+--				if (constraint_array(0,r) = 1) then
+--					--solutions(0,r,(3<=1, others<=0));
+--					--solutions(0,r) <= (3 => '1', others => '0');
+--					--solutions := (0 => (r => (3 => '1', others => '0')));
+--					--matrix_array(r, 0) <= 4;
+--					solutions(0, r, 0) <= '0';
+--					solutions(0, r, 1) <= '0';
+--					solutions(0, r, 2) <= '0';
+--					solutions(0, r, 3) <= '1';
+--				end if;
+--			end loop;
+--		end if;
+--	end process;
+	
+	editMatrix: process(RESET_N, solutions)
+		variable solution		: integer := 0;
+		variable sol_count	: integer := 0;
+	begin
+		if (RESET_N='0') then
+			matrix_array <= ((others=> (others=> 0)));
+		end if;
+		-- Add known results to matrix
+		for r in 0 to 3 loop
+			for c in 0 to 3 loop
+				solution := 0;
+				sol_count := 0;
+				for s in 0 to 3 loop
+					if (solutions(c, r, s) = '1') then
+						solution := s + 1;
+						sol_count := sol_count + 1;
+					end if;
+				end loop;
+				if (sol_count = 1) then
+					matrix_array(c, r) <= solution;
+				end if;
+			end loop;
+		end loop;
+		MATRIX <= matrix_array;
 	end process;
 end behavior;
