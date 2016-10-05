@@ -29,7 +29,8 @@ entity Skyscrapers_Puzzle_Datapath is
 end entity;
 
 architecture behavior of Skyscrapers_Puzzle_Datapath is
-	signal constraint_array		: CONSTRAINTS_TYPE := ((1, 2, 3, 3), (1, 2, 2, 3), (3, 2, 2, 1), (3, 3, 2, 1));
+	signal constraint_array		: CONSTRAINTS_TYPE := ((2, 3, 1, 2), (2, 1, 4, 2), (2, 3, 1, 3), (2, 1, 3, 2));
+	--signal constraint_array		: CONSTRAINTS_TYPE := ((1, 2, 3, 3), (1, 2, 2, 3), (3, 2, 2, 1), (3, 3, 2, 1));
 	signal matrix_array			: MATRIX_TYPE := ((others=> (others=> 0)));
 	signal solutions				: SOLUTIONS_TYPE := ((others => (others => (others => '1'))));
 	signal cursor_position		: CURSOR_POS_TYPE;
@@ -139,7 +140,8 @@ begin
 			end if;
 			
 			if (SOLVE = '1') then
-				-- Regola constraint = 1
+			
+				-- Rule: constraint = 1
 				for r in 0 to 3 loop
 					if (constraint_array(0, r) = 1) then
 						insert_value(0, r, 4);
@@ -156,11 +158,31 @@ begin
 						insert_value(c, 3, 4);
 					end if;
 				end loop;
+				
+				-- Rule: constraint sum = 5
+				for r in 0 to 3 loop
+					if (constraint_array(0, r) + constraint_array(3, r) = 5) then
+						insert_value(constraint_array(0, r)-1, r, 4);
+					end if;
+				end loop;
+				for c in 0 to 3 loop
+					if (constraint_array(1, c) + constraint_array(2, c) = 5) then
+						insert_value(c, constraint_array(1, c)-1, 4);
+					end if;
+				end loop;
+				
 			end if;
 			
 			-- check matrix constraints
 			WINNER <= win;
 			win <= '1';
+			for r in 0 to 3 loop
+				for c in 0 to 3 loop
+					if (matrix_array(c, r) = 0) then
+						win <= '0';
+					end if;
+				end loop;
+			end loop;
 			for r in 0 to 3 loop
 				max := 0;
 				top1 := 0;
