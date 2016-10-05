@@ -29,6 +29,7 @@ entity Skyscrapers_Puzzle_Datapath is
 end entity;
 
 architecture behavior of Skyscrapers_Puzzle_Datapath is
+	--signal constraint_array		: CONSTRAINTS_TYPE := ((1, 2, 3, 4), (5, 6, 7, 8), (1, 1, 1, 1), (1, 1, 1, 9));
 	signal constraint_array		: CONSTRAINTS_TYPE := ((2, 3, 1, 2), (2, 1, 4, 2), (2, 3, 1, 3), (2, 1, 3, 2));
 	--signal constraint_array		: CONSTRAINTS_TYPE := ((1, 2, 3, 3), (1, 2, 2, 3), (3, 2, 2, 1), (3, 3, 2, 1));
 	signal matrix_array			: MATRIX_TYPE := ((others=> (others=> 0)));

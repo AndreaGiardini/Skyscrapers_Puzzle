@@ -67,6 +67,8 @@ begin
 			FB_FLIP <= '0';
 			query_cell_r.col <= 0;
 			query_cell_r.row <= 0;
+			constraints_r := 0;
+			constraints_c := 0;
 		elsif (rising_edge(CLOCK))
 		then
 			FB_CLEAR <= '0';
