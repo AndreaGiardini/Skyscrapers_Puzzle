@@ -78,6 +78,15 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 		end loop;
 	end;
 
+	procedure remove_solution_from_cell (
+		row		: integer;
+		column	: integer;
+		number	: integer
+	) is
+	begin
+		solutions(row, column, number-1) <= '0';
+	end;
+	
 	procedure insert_value (
 		row		: integer;
 		column	: integer;
@@ -142,6 +151,36 @@ begin
 			
 			if (SOLVE = '1') then
 			
+				-- Rule: constraint = 4
+				for r in 0 to 3 loop
+					if (constraint_array(0, r) = 4) then
+						insert_value(0, r, 1);
+						insert_value(1, r, 2);
+						insert_value(2, r, 3);
+						insert_value(3, r, 4);
+					end if;
+					if (constraint_array(3, r) = 4) then
+						insert_value(3, r, 1);
+						insert_value(2, r, 2);
+						insert_value(1, r, 3);
+						insert_value(0, r, 4);
+					end if;
+				end loop;
+				for c in 0 to 3 loop
+					if (constraint_array(1, c) = 4) then
+						insert_value(c, 0, 1);
+						insert_value(c, 1, 2);
+						insert_value(c, 2, 3);
+						insert_value(c, 3, 4);
+					end if;
+					if (constraint_array(2, c) = 4) then
+						insert_value(c, 3, 1);
+						insert_value(c, 2, 2);
+						insert_value(c, 1, 3);
+						insert_value(c, 0, 4);
+					end if;
+				end loop;
+			
 				-- Rule: constraint = 1
 				for r in 0 to 3 loop
 					if (constraint_array(0, r) = 1) then
@@ -157,6 +196,24 @@ begin
 					end if;
 					if (constraint_array(2, c) = 1) then
 						insert_value(c, 3, 4);
+					end if;
+				end loop;
+				
+				-- Rule: constraint = 2
+				for r in 0 to 3 loop
+					if (constraint_array(0, r) = 2) then
+						remove_solution_from_cell(1, r, 3);
+					end if;
+					if (constraint_array(3, r) = 2) then
+						remove_solution_from_cell(2, r, 3);
+					end if;
+				end loop;
+				for c in 0 to 3 loop
+					if (constraint_array(1, c) = 2) then
+						remove_solution_from_cell(c, 1, 3);
+					end if;
+					if (constraint_array(2, c) = 2) then
+						remove_solution_from_cell(c, 2, 3);
 					end if;
 				end loop;
 				
