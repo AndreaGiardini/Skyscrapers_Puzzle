@@ -29,8 +29,8 @@ entity Skyscrapers_Puzzle_Datapath is
 end entity;
 
 architecture behavior of Skyscrapers_Puzzle_Datapath is
-	--signal constraint_array		: CONSTRAINTS_TYPE := ((1, 2, 3, 4), (5, 6, 7, 8), (1, 1, 1, 1), (1, 1, 1, 9));
-	signal constraint_array		: CONSTRAINTS_TYPE := ((2, 3, 1, 2), (2, 1, 4, 2), (2, 3, 1, 3), (2, 1, 3, 2));
+	signal constraint_array		: CONSTRAINTS_TYPE := ((1, 3, 3, 2), (1, 4, 2, 3), (2, 1, 2, 2), (3, 2, 1, 3));
+	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 3, 1, 2), (2, 1, 4, 2), (2, 3, 1, 3), (2, 1, 3, 2));
 	--signal constraint_array		: CONSTRAINTS_TYPE := ((1, 2, 3, 3), (1, 2, 2, 3), (3, 2, 2, 1), (3, 3, 2, 1));
 	signal matrix_array			: MATRIX_TYPE := ((others=> (others=> 0)));
 	signal solutions				: SOLUTIONS_TYPE := ((others => (others => (others => '1'))));
@@ -44,7 +44,7 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	) is
 	begin
 		for c in 0 to 3 loop
-			solutions(row, c, number) <= '0';
+			solutions(row, c, number-1) <= '0';
 		end loop;
 	end;
 
@@ -54,7 +54,7 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	) is
 	begin
 		for r in 0 to 3 loop
-			solutions(r, column, number) <= '0';
+			solutions(r, column, number-1) <= '0';
 		end loop;
 	end;
 
@@ -64,7 +64,7 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	) is
 	begin
 		for c in 0 to 3 loop
-			solutions(row, c, number) <= '1';
+			solutions(row, c, number-1) <= '1';
 		end loop;
 	end;
 
@@ -74,7 +74,7 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	) is
 	begin
 		for r in 0 to 3 loop
-			solutions(r, column, number) <= '1';
+			solutions(r, column, number-1) <= '1';
 		end loop;
 	end;
 
@@ -94,8 +94,8 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	) is
 	begin
 		if (number /= 0) then
-			remove_solution_from_row(row, number-1);
-			remove_solution_from_column(column, number-1);
+			remove_solution_from_row(row, number);
+			remove_solution_from_column(column, number);
 			for n in 0 to 3 loop
 				if (n = number - 1) then
 					solutions(row, column, n) <= '1';
@@ -117,6 +117,8 @@ begin
 		variable top1 : integer := 0;
 		variable top2 : integer := 0;
 		variable r : integer := 0;
+		variable solution		: integer := 0;
+		variable sol_count	: integer := 0;
 	begin
 		CONSTRAINTS <= constraint_array;
 		if (RESET_N='0') then
@@ -124,7 +126,7 @@ begin
 			CURSOR_POS <= (0, 0);
 			cursor_position <= (0, 0);
 			solutions <= ((others => (others => (others => '1'))));
---			matrix_array <= ((others=> (others=> 0)));
+			matrix_array <= ((others=> (others=> 0)));
 		elsif (rising_edge(CLOCK)) then
 			CURSOR_POS <= cursor_position;
 			if (MOVE_RIGHT = '1') then
@@ -266,6 +268,25 @@ begin
 				end if;
 			end loop;
 			
+			for r in 0 to 3 loop
+				for c in 0 to 3 loop
+					solution := 0;
+					sol_count := 0;
+					for s in 0 to 3 loop
+						if (solutions(c, r, s) = '1') then
+							solution := s + 1;
+							sol_count := sol_count + 1;
+						end if;
+					end loop;
+					if (sol_count = 1) then
+						remove_solution_from_row(c, solution);
+						remove_solution_from_column(r, solution);
+						matrix_array(c, r) <= solution;
+					end if;
+				end loop;
+			end loop;
+			MATRIX <= matrix_array;
+			
 		end if;
 	end process;
 	
@@ -288,29 +309,29 @@ begin
 --		end if;
 --	end process;
 	
-	editMatrix: process(RESET_N, solutions)
-		variable solution		: integer := 0;
-		variable sol_count	: integer := 0;
-	begin
-		if (RESET_N='0') then
-			matrix_array <= ((others=> (others=> 0)));
-		end if;
-		-- Add known results to matrix
-		for r in 0 to 3 loop
-			for c in 0 to 3 loop
-				solution := 0;
-				sol_count := 0;
-				for s in 0 to 3 loop
-					if (solutions(c, r, s) = '1') then
-						solution := s + 1;
-						sol_count := sol_count + 1;
-					end if;
-				end loop;
-				if (sol_count = 1) then
-					matrix_array(c, r) <= solution;
-				end if;
-			end loop;
-		end loop;
-		MATRIX <= matrix_array;
-	end process;
+--	editMatrix: process(RESET_N, solutions)
+--		variable solution		: integer := 0;
+--		variable sol_count	: integer := 0;
+--	begin
+--		if (RESET_N='0') then
+--			matrix_array <= ((others=> (others=> 0)));
+--		end if;
+--		-- Add known results to matrix
+--		for r in 0 to 3 loop
+--			for c in 0 to 3 loop
+--				solution := 0;
+--				sol_count := 0;
+--				for s in 0 to 3 loop
+--					if (solutions(c, r, s) = '1') then
+--						solution := s + 1;
+--						sol_count := sol_count + 1;
+--					end if;
+--				end loop;
+--				if (sol_count = 1) then
+--					matrix_array(c, r) <= solution;
+--				end if;
+--			end loop;
+--		end loop;
+--		MATRIX <= matrix_array;
+--	end process;
 end behavior;
