@@ -95,10 +95,12 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	procedure remove_solution_from_cell (
 		row		: integer;
 		column	: integer;
-		number	: integer
+		number	: integer := 0
 	) is
 	begin
-		solutions(row, column, number-1) <= '0';
+		if (number > 0) then
+			solutions(row, column, number-1) <= '0';
+		end if;
 	end;
 	
 	procedure insert_value (
@@ -123,11 +125,60 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 			add_solution_to_column(column, matrix_array(row, column));
 		end if;
 	end;
+	
+--	function check_left (
+--		row			: integer;
+--		max			: integer;
+--		top			: integer;
+--		start			: integer;
+--		maxindex		: integer;
+--		matrix		: MATRIX_TYPE;
+--		constraints	: CONSTRAINTS_TYPE
+--	) return std_logic is
+--	variable innerMax	: integer := 0;
+--	variable innerTop	: integer := 0;
+--	begin
+--		if (start > 3) then
+--			return '1';
+--		end if;
+--		innerMax := max;
+--		innerTop := top;
+--		if (start = maxindex) then
+--			innerMax := matrix(start, row);
+--			innerTop := innerTop + 1;
+--			if (constraints(0, row) /= innerTop) then
+--				return '0';
+--			else
+--				return '1';
+--			end if;
+--		end if;
+--		if (possible_values(start, row) = 1) then
+--			if (matrix(start, row) > innerMax) then
+--				innerMax := matrix(start, row);
+--				innerTop := innerTop + 1;
+--			end if;
+--			return check_left(row, innerMax, innerTop, start+1, maxindex, matrix, constraints);
+--		else -- many possible values
+--			for s in 0 to 3 loop
+--				if (solutions(start,row,s) = '1') then
+--					if (s+1 > innerMax) then
+--						innerMax := s+1;
+--						innerTop := innerTop +1;
+--					end if;
+--					if (check_left(row, innerMax, innerTop, start+1, maxindex, matrix, constraints) = '0') then
+--						remove_solution_from_cell(start, row, s+1);
+--					end if;
+--				end if;
+--			end loop;
+--			return '1';
+--		end if;
+--	end;
 		
 begin
 
 	process(CLOCK, RESET_N, SOLVE, cursor_position)
 		variable max : integer := 0;
+		variable top : integer := 0;
 		variable top1 : integer := 0;
 		variable top2 : integer := 0;
 		variable r : integer := 0;
@@ -139,7 +190,8 @@ begin
 		variable maxindex		: integer := 0;
 		variable number		: integer := 0;
 		variable innerMax		: integer := 0;
-		variable innerTop1	: integer := 0;
+		variable innerTop		: integer := 0;
+		variable checkRes		: std_logic := '0';
 	begin
 		CONSTRAINTS <= constraint_array;
 		if (RESET_N='0') then
@@ -281,86 +333,124 @@ begin
 						end loop;
 					end if;
 				end loop;
+				
+				-- Rule: check only possible position for value
+				for r in 0 to 3 loop
+					for n in 0 to 3 loop
+						position := 0;
+						pos_count := 0;
+						for c in 0 to 3 loop
+							if (solutions(c, r, n) = '1') then
+								position := c;
+								pos_count := pos_count +1;
+							end if;
+						end loop;
+						if (pos_count = 1) then
+							insert_value(position, r, n+1);
+						end if;
+					end loop;
+				end loop;
+				for c in 0 to 3 loop
+					for n in 0 to 3 loop
+						position := 0;
+						pos_count := 0;
+						for r in 0 to 3 loop
+							if (solutions(c, r, n) = '1') then
+								position := r;
+								pos_count := pos_count +1;
+							end if;
+						end loop;
+						if (pos_count = 1) then
+							insert_value(c, position, n+1);
+						end if;
+					end loop;
+				end loop;
+				
+				--checkRes := check_left(1, 0, 0, 0, 2, matrix_array, constraint_array);
+				-- "Intuitive" rule: check if possible value breaks constraint
+				for r in 0 to 3 loop
+					reverse := 0;
+					maxindex := 0;
+					for c in 0 to 3 loop
+						if (matrix_array(c,r)=4) then
+							maxindex := c;
+						end if;
+					end loop;
+--					-- From LEFT
+					max := 0;
+					top := 0;
+					for c in 0 to 3 loop	-- Column loop
+						if (c < maxindex) then	-- Loop until index of element 4
+							if (possible_values(c, r) = 1) then		-- Usual check for maximum value when there is only one possible value
+								if (matrix_array(c, r) > max) then
+									max := matrix_array(c, r);
+									top := top + 1;
+								end if;
+							else	-- Multiple solutions are possible
+								for n in 0 to 3 loop	-- Loop on all possible solutions
+									innerMax := max;
+									innerTop := top;
+									if (solutions(c,r,n) = '1') then	-- Proceed only if n is a possible solution
+										if (n+1 > innerMax) then
+											innerMax := n+1;
+											innerTop := innerTop+1;
+										end if;
+										for c2 in c+1 to 3 loop	-- Loop on the remaining columns
+											if (c2 <= maxindex) then
+												if (matrix_array(c2, r) > innerMax) then
+													innerMax := matrix_array(c2, r);
+													innerTop := innerTop+1;
+												end if;
+											end if;
+										end loop;
+										if (constraint_array(0,r) /= innerTop) then
+											remove_solution_from_cell(c, r, n+1);
+										end if;
+									end if;
+								end loop;
+								exit;
+							end if;
+						end if;
+					end loop;
+					-- From RIGHT
+					max := 0;
+					top := 0;
+					for c in 3 downto 0 loop	-- Column loop
+						if (c > maxindex) then	-- Loop until index of element 4
+							if (possible_values(c, r) = 1) then		-- Usual check for maximum value when there is only one possible value
+								if (matrix_array(c, r) > max) then
+									max := matrix_array(c, r);
+									top := top + 1;
+								end if;
+							else	-- Multiple solutions are possible
+								for n in 0 to 3 loop	-- Loop on all possible solutions
+									innerMax := max;
+									innerTop := top;
+									if (solutions(c,r,n) = '1') then	-- Proceed only if n is a possible solution
+										if (n+1 > innerMax) then
+											innerMax := n+1;
+											innerTop := innerTop+1;
+										end if;
+										for c2 in c-1 downto 0 loop	-- Loop on the remaining columns
+											if (c2 >= maxindex) then
+												if (matrix_array(c2, r) > innerMax) then
+													innerMax := matrix_array(c2, r);
+													innerTop := innerTop+1;
+												end if;
+											end if;
+										end loop;
+										if (constraint_array(3,r) /= innerTop) then
+											remove_solution_from_cell(c, r, n+1);
+										end if;
+									end if;
+								end loop;
+								exit;
+							end if;
+						end if;
+					end loop;
+				end loop;
 			end if;
 			
-			-- Rule: check only possible position for value
-			for r in 0 to 3 loop
-				for n in 0 to 3 loop
-					position := 0;
-					pos_count := 0;
-					for c in 0 to 3 loop
-						if (solutions(c, r, n) = '1') then
-							position := c;
-							pos_count := pos_count +1;
-						end if;
-					end loop;
-					if (pos_count = 1) then
-						insert_value(position, r, n+1);
-					end if;
-				end loop;
-			end loop;
-			for c in 0 to 3 loop
-				for n in 0 to 3 loop
-					position := 0;
-					pos_count := 0;
-					for r in 0 to 3 loop
-						if (solutions(c, r, n) = '1') then
-							position := r;
-							pos_count := pos_count +1;
-						end if;
-					end loop;
-					if (pos_count = 1) then
-						insert_value(c, position, n+1);
-					end if;
-				end loop;
-			end loop;
-			
-			-- "Intuitive" rule: check if possible value breaks constraint
-			for r in 0 to 3 loop
-				reverse := 0;
-				maxindex := 0;
-				for c in 0 to 3 loop
-					if (matrix_array(c,r)=4) then
-						maxindex := c;
-					end if;
-				end loop;
-				max := 0;
-				top1 := 0;
-				top2 := 0;
-				for c in 0 to 3 loop	-- Column loop
-					if (c < maxindex) then	-- Loop until index of element 4
-						if (possible_values(c, r) = 1) then		-- Usual check for maximum value when there is only one possible value
-							if (matrix_array(c, r) > max) then
-								max := matrix_array(c, r);
-								top1 := top1 + 1;
-							end if;
-						else	-- Multiple solutions are possible
-							for n in 0 to 3 loop	-- Loop on all possible solutions
-								innerMax := max;
-								innerTop1 := top1;
-								if (solutions(c,r,n) = '1') then	-- Proceed only if n is a possible solution
-									if (n+1 > innerMax) then
-										innerMax := n+1;
-										innerTop1 := innerTop1+1;
-									end if;
-									for c2 in c+1 to 3 loop	-- Loop on the remaining columns
-										if (c2 <= maxindex) then
-											if (matrix_array(c2, r) > innerMax) then
-												innerMax := matrix_array(c2, r);
-												innerTop1 := innerTop1+1;
-											end if;
-										end if;
-									end loop;
-									if (constraint_array(0,r) /= innerTop1) then
-										remove_solution_from_cell(c, r, n+1);
-									end if;
-								end if;
-							end loop;
-							exit;
-						end if;
-					end if;
-				end loop;
-			end loop;
 			
 			-- check matrix constraints
 			WINNER <= win;
@@ -411,6 +501,7 @@ begin
 						remove_solution_from_row(c, solution);
 						remove_solution_from_column(r, solution);
 						matrix_array(c, r) <= solution;
+						--insert_value(c, r, solution+1);
 					end if;
 				end loop;
 			end loop;
