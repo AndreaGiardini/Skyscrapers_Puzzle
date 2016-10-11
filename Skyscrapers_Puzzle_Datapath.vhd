@@ -119,6 +119,8 @@ begin
 		variable r : integer := 0;
 		variable solution		: integer := 0;
 		variable sol_count	: integer := 0;
+		variable position		: integer := 0;
+		variable pos_count	: integer := 0;
 	begin
 		CONSTRAINTS <= constraint_array;
 		if (RESET_N='0') then
@@ -220,18 +222,79 @@ begin
 				end loop;
 				
 				-- Rule: constraint sum = 5
+--				for r in 0 to 3 loop
+--					if (constraint_array(0, r) + constraint_array(3, r) = 5) then
+--						insert_value(constraint_array(0, r)-1, r, 4);
+--					end if;
+--				end loop;
+--				for c in 0 to 3 loop
+--					if (constraint_array(1, c) + constraint_array(2, c) = 5) then
+--						insert_value(c, constraint_array(1, c)-1, 4);
+--					end if;
+--				end loop;
+
+				-- Rule: constraint = first valid position for 4
 				for r in 0 to 3 loop
-					if (constraint_array(0, r) + constraint_array(3, r) = 5) then
-						insert_value(constraint_array(0, r)-1, r, 4);
+					-- constraint_array(0,r)
+					if (constraint_array(0,r) > 1) then
+						for c in 0 to constraint_array(0,r)-2 loop
+							remove_solution_from_cell(c, r, 4);
+						end loop;
+					end if;
+					-- constraint_array(3,r)
+					if (constraint_array(3,r) > 1) then
+						for c in 3 to 5-constraint_array(3,r) loop
+							remove_solution_from_cell(c, r, 4);
+						end loop;
 					end if;
 				end loop;
 				for c in 0 to 3 loop
-					if (constraint_array(1, c) + constraint_array(2, c) = 5) then
-						insert_value(c, constraint_array(1, c)-1, 4);
+					-- constraint_array(1,c)
+					if (constraint_array(1,c) > 1) then
+						for r in 0 to constraint_array(1,c)-2 loop
+							remove_solution_from_cell(c, r, 4);
+						end loop;
+					end if;
+					-- constraint_array(2,c)
+					if (constraint_array(2,c) > 1) then
+						for r in 3 to 5-constraint_array(2,c) loop
+							remove_solution_from_cell(c, r, 4);
+						end loop;
 					end if;
 				end loop;
-				
 			end if;
+			
+			-- Rule: check only possible position for value
+			for r in 0 to 3 loop
+				for n in 0 to 3 loop
+					position := 0;
+					pos_count := 0;
+					for c in 0 to 3 loop
+						if (solutions(c, r, n) = '1') then
+							position := c;
+							pos_count := pos_count +1;
+						end if;
+					end loop;
+					if (pos_count = 1) then
+						insert_value(position, r, n+1);
+					end if;
+				end loop;
+			end loop;
+			for c in 0 to 3 loop
+				for n in 0 to 3 loop
+					position := 0;
+					pos_count := 0;
+					for r in 0 to 3 loop
+						if (solutions(c, r, n) = '1') then
+							position := r;
+							pos_count := pos_count +1;
+						end if;
+					end loop;
+					if (pos_count = 1) then
+						insert_value(c, position, n+1);
+					end if;
+				end loop;
+			end loop;
 			
 			-- check matrix constraints
 			WINNER <= win;
