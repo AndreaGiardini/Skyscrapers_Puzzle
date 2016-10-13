@@ -80,6 +80,8 @@ To better organize the game we decided to follow the MVC patter, giving to
 each class a single responsibility. In the following sections we will
 analyse in details what are the responsibilities of each class:
 
+\newpage
+
 \section*{Control Unit}
 
 The control unit is used in this project to get the inputs from the user
@@ -100,6 +102,8 @@ the signals to actions to the Control Unit, as it is supposed to be.
 
 The Control Unit has the following signals:
 
+\begin{center}
+\begin{minipage}{0.5\textwidth}
 \begin{minted}{vhdl}
   CLOCK        : in  std_logic;
   KEYBOARDDATA : in  std_logic_vector (7 downto 0);
@@ -119,10 +123,16 @@ The Control Unit has the following signals:
   -- Connections with View
   REDRAW     : out   std_logic;
 \end{minted}
+\caption{Input and Output signals for Control Unit}
+\end{minipage}
+\end{center}
 
+\newpage
 
 \section*{Datapath}
 
+\begin{center}
+\begin{minipage}{0.5\textwidth}
 \begin{minted}{vhdl}
   CLOCK       : in  std_logic;
   RESET_N     : in  std_logic;
@@ -141,9 +151,21 @@ The Control Unit has the following signals:
   CURSOR_POS  : out CURSOR_POS_TYPE;
   WINNER      : out std_logic;
 \end{minted}
+\caption{Input and Output signals for Datapath}
+\end{minipage}
+\end{center}
+
+\newpage
 
 \section*{View}
 
+The View is responsible for drawing on screen the elements of the Datapath
+and represent them in the best way for the user. In our case the game is
+quite simple to represent on screen but there were some challenges to be
+solved, in particular with the drawing of numbers.
+
+\begin{center}
+\begin{minipage}{0.5\textwidth}
 \begin{minted}{vhdl}
   CLOCK        : in  std_logic;
   RESET_N      : in  std_logic;
@@ -169,6 +191,70 @@ The Control Unit has the following signals:
   QUERY_CELL   : out block_pos_type;
   CELL_CONTENT : in  board_cell_type;
 \end{minted}
+\caption{Input and Output signals for View}
+\end{minipage}
+\end{center}
+
+As we can see from the signals, we used the FrameBuffer technology to draw
+the frames of the game before printing them on the screen. The FrameBuffer
+is a portion of memory containing a Bitmap that is used to refresh a video
+display from a memory buffer containing a complete frame of data.
+Basically what happens is that we draw the whole frame to be displayed in
+memory before actually displaying it on video. Once the frame is ready to
+be displayed and all the drawing operations are completed we refresh the
+screen putting on it the new frame that we just drawn in memory.
+
+\newpage
+
+The View is organized in different macro states:
+
+\begin{minted}{vhdl}
+type state_type is (IDLE, WAIT_FOR_READY, DRAWING);
+\end{minted}
+
+In particular we will analyse the DRAWING state, which is made of a set of
+sub-states:
+
+\begin{minted}{vhdl}
+type substate_type is (CLEAR_SCENE, DRAW_BOARD_OUTLINE, DRAW_BOARD_BLOCKS,
+     DRAW_BOARD_CONSTRAINTS, DRAW_BOARD_NUMBERS, FLIP_FRAMEBUFFER);
+\end{minted}
+
+Every state draws a different object:
+
+\begin{itemize}
+  \item CLEAR\_SCENE
+
+  Cleans the Frame in memory, filling it with a black square which will be
+  the background of our game.
+
+  \item DRAW\_BOARD\_OUTLINE
+
+  Draws the outline of our game board, just the perimetral square.
+
+  \item DRAW\_BOARD\_BLOCKS
+
+  Draws the blocks inside our game board and the position of the cursor.
+
+  \item DRAW\_BOARD\_CONSTRAINTS
+
+  Draws the constraints around our game board.
+
+  \item DRAW\_BOARD\_NUMBERS
+
+  Places the numbers that have been inserted inside the board.
+
+  \item FLIP\_FRAMEBUFFER
+
+  This state is reached when the drawing has been completed and we are
+  ready to display it on the monitor.
+\end{itemize}
+
+The most difficult part was drawing the numbers on screen since the
+FrameBuffer library was not giving us any possibility of drawing custom
+images but only squares. To draw the numbers we had to define every digit
+as an array of colors, representing pixel by pixel the color that has to
+be placed.
 
 \chapter*{Solving algorithm}
 
