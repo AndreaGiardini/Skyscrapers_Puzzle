@@ -111,13 +111,24 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	) is
 	begin
 		if (number /= 0) then
-			remove_solution_from_row(row, number);
-			remove_solution_from_column(column, number);
+			--remove_solution_from_row(row, number);
+			--remove_solution_from_column(column, number);
+			for c in 0 to 3 loop
+				if (c /= column) then
+					solutions_array(row, c, number-1) <= '0';
+				end if;
+			end loop;
+			
+			for r in 0 to 3 loop
+				if (r /= row) then
+					solutions_array(r, column, number-1) <= '0';
+				end if;
+			end loop;
+			
 			for n in 0 to 3 loop
 				if (n = number - 1) then
 					solutions_array(row, column, n) <= '1';
 				else
-					
 					solutions_array(row, column, n) <= '0';
 				end if;
 			end loop;
@@ -125,6 +136,8 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 			add_solution_to_row(row, matrix_array(row, column));
 			add_solution_to_column(column, matrix_array(row, column));
 		end if;
+		
+		SOLUTIONS <= solutions_array;
 	end;
 	
 --	function check_left (
@@ -201,6 +214,7 @@ begin
 			cursor_position <= (0, 0);
 			solutions_array <= ((others => (others => (others => '1'))));
 			matrix_array <= ((others=> (others=> 0)));
+			SOLUTIONS <= solutions_array;
 		elsif (rising_edge(CLOCK)) then
 			CURSOR_POS <= cursor_position;
 			if (MOVE_RIGHT = '1') then

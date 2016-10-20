@@ -206,25 +206,25 @@ Keyboard: entity work.Skyscrapers_Puzzle_Keyboard
 		);		
 	
 	timegen : process(CLOCK, RESET_N)
-		variable counter : integer range 0 to (500000-1);
-		begin
-			if (RESET_N = '0') then
+	variable counter : integer range 0 to (500000-1);
+	begin
+		if (RESET_N = '0') then
+			counter := 0;
+			time_10ms <= '0';
+		elsif (rising_edge(clock)) then
+			if(counter = counter'high) then
 				counter := 0;
-				time_10ms <= '0';
-			elsif (rising_edge(clock)) then
-				if(counter = counter'high) then
-					counter := 0;
-					time_10ms <= '1';
-				else
-					counter := counter+1;
-					time_10ms <= '0';			
-				end if;
+				time_10ms <= '1';
+			else
+				counter := counter+1;
+				time_10ms <= '0';			
 			end if;
-		end process;
+		end if;
+	end process;
 		
 	
-      score_display : process(CLOCK, RESET_N, cursor_pos, solutions)
-      begin
+	score_display : process(CLOCK, RESET_N, cursor_pos, solutions)
+	begin
 --         if (RESET_N = '0') then
 --            HEX0 <="1000000";
 --            HEX1 <="1000000";
@@ -263,31 +263,31 @@ Keyboard: entity work.Skyscrapers_Puzzle_Keyboard
 --					when others=> HEX2 <="0010000";
 --            end case;
 --			end if;
-			if (RESET_N = '0') then
-				HEX3 <= "1111001";
-				HEX2 <= "0100100";
-				HEX1 <= "0110000";
-				HEX0 <= "0011001";
-			end if;
-			if (solutions(cursor_pos(1), cursor_pos(0), 0) = '1') then
-				HEX3 <= "1111001";
-			else
-				HEX3 <= "1111111";
-			end if;
-			if (solutions(cursor_pos(1), cursor_pos(0), 1) = '1') then
-				HEX2 <= "0100100";
-			else
-				HEX2 <= "1111111";
-			end if;
-			if (solutions(cursor_pos(1), cursor_pos(0), 2) = '1') then
-				HEX1 <= "0110000";
-			else
-				HEX1 <= "1111111";
-			end if;
-			if (solutions(cursor_pos(1), cursor_pos(0), 3) = '1') then
-				HEX0 <= "0011001";
-			else
-				HEX0 <= "1111111";
-			end if;
-		end process;
+		if (RESET_N = '0') then
+			HEX3 <= "1111001";
+			HEX2 <= "0100100";
+			HEX1 <= "0110000";
+			HEX0 <= "0011001";
+		end if;
+		if (solutions(cursor_pos(1), cursor_pos(0), 0) = '1') then
+			HEX3 <= "1111001";
+		else
+			HEX3 <= "1111111";
+		end if;
+		if (solutions(cursor_pos(1), cursor_pos(0), 1) = '1') then
+			HEX2 <= "0100100";
+		else
+			HEX2 <= "1111111";
+		end if;
+		if (solutions(cursor_pos(1), cursor_pos(0), 2) = '1') then
+			HEX1 <= "0110000";
+		else
+			HEX1 <= "1111111";
+		end if;
+		if (solutions(cursor_pos(1), cursor_pos(0), 3) = '1') then
+			HEX0 <= "0011001";
+		else
+			HEX0 <= "1111111";
+		end if;
+	end process;
 end architecture;
