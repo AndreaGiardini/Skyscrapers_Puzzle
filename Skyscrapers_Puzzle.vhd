@@ -75,6 +75,7 @@ architecture behavioral of Skyscrapers_Puzzle is
 	
 	signal matrix					: MATRIX_TYPE;
 	signal constraints			: CONSTRAINTS_TYPE;
+	signal solutions				: SOLUTIONS_TYPE;
 	signal cursor_pos				: CURSOR_POS_TYPE;
 begin
 
@@ -176,6 +177,7 @@ Keyboard: entity work.Skyscrapers_Puzzle_Keyboard
 			SOLVE				=> solve,
 			MATRIX			=>	matrix,
 			CONSTRAINTS		=> constraints,
+			SOLUTIONS		=> solutions,
 			CURSOR_POS		=> cursor_pos,
 			WINNER			=> LEDG(0)
 		);
@@ -221,45 +223,71 @@ Keyboard: entity work.Skyscrapers_Puzzle_Keyboard
 		end process;
 		
 	
-      score_display : process(CLOCK, RESET_N)
+      score_display : process(CLOCK, RESET_N, cursor_pos, solutions)
       begin
-         if (RESET_N = '0') then
-            HEX0 <="1000000";
-            HEX1 <="1000000";
-            HEX2 <="1000000";
-            HEX3 <="1000000";
-         elsif (rising_edge(CLOCK)) then
-				HEX1 <="1000000";
-				HEX3 <="1000000";
-            -- Column
-            case cursor_pos(1) is
-               when 0 => HEX0 <="1000000";  -- '0'
-               when 1 => HEX0 <="1111001";  -- '1'
-               when 2 => HEX0 <="0100100";  -- '2'
-               when 3 => HEX0 <="0110000";  -- '3'
-               when 4 => HEX0 <="0011001";  -- '4'
-               when 5 => HEX0 <="0010010";  -- '5'
-               when 6 => HEX0 <="0000010";  -- '6'
-               when 7 => HEX0 <="1111000";  -- '7'
-               when 8 => HEX0 <="0000000";  -- '8'
-               when 9 => HEX0 <="0010000";  -- '9'
-					when others=> HEX0 <="0010000";
-            end case;
-				
-				-- Row
-				case cursor_pos(0) is
-               when 0 => HEX2 <="1000000";  -- '0'
-               when 1 => HEX2 <="1111001";  -- '1'
-               when 2 => HEX2 <="0100100";  -- '2'
-               when 3 => HEX2 <="0110000";  -- '3'
-               when 4 => HEX2 <="0011001";  -- '4'
-               when 5 => HEX2 <="0010010";  -- '5'
-               when 6 => HEX2 <="0000010";  -- '6'
-               when 7 => HEX2 <="1111000";  -- '7'
-               when 8 => HEX2 <="0000000";  -- '8'
-               when 9 => HEX2 <="0010000";  -- '9'
-					when others=> HEX2 <="0010000";
-            end case;
+--         if (RESET_N = '0') then
+--            HEX0 <="1000000";
+--            HEX1 <="1000000";
+--            HEX2 <="1000000";
+--            HEX3 <="1000000";
+--         elsif (rising_edge(CLOCK)) then
+--				HEX1 <="1000000";
+--				HEX3 <="1000000";
+--            -- Column
+--            case cursor_pos(1) is
+--               when 0 => HEX0 <="1000000";  -- '0'
+--               when 1 => HEX0 <="1111001";  -- '1'
+--               when 2 => HEX0 <="0100100";  -- '2'
+--               when 3 => HEX0 <="0110000";  -- '3'
+--               when 4 => HEX0 <="0011001";  -- '4'
+--               when 5 => HEX0 <="0010010";  -- '5'
+--               when 6 => HEX0 <="0000010";  -- '6'
+--               when 7 => HEX0 <="1111000";  -- '7'
+--               when 8 => HEX0 <="0000000";  -- '8'
+--               when 9 => HEX0 <="0010000";  -- '9'
+--					when others=> HEX0 <="0010000";
+--            end case;
+--				
+--				-- Row
+--				case cursor_pos(0) is
+--               when 0 => HEX2 <="1000000";  -- '0'
+--               when 1 => HEX2 <="1111001";  -- '1'
+--               when 2 => HEX2 <="0100100";  -- '2'
+--               when 3 => HEX2 <="0110000";  -- '3'
+--               when 4 => HEX2 <="0011001";  -- '4'
+--               when 5 => HEX2 <="0010010";  -- '5'
+--               when 6 => HEX2 <="0000010";  -- '6'
+--               when 7 => HEX2 <="1111000";  -- '7'
+--               when 8 => HEX2 <="0000000";  -- '8'
+--               when 9 => HEX2 <="0010000";  -- '9'
+--					when others=> HEX2 <="0010000";
+--            end case;
+--			end if;
+			if (RESET_N = '0') then
+				HEX3 <= "1111001";
+				HEX2 <= "0100100";
+				HEX1 <= "0110000";
+				HEX0 <= "0011001";
+			end if;
+			if (solutions(cursor_pos(1), cursor_pos(0), 0) = '1') then
+				HEX3 <= "1111001";
+			else
+				HEX3 <= "1111111";
+			end if;
+			if (solutions(cursor_pos(1), cursor_pos(0), 1) = '1') then
+				HEX2 <= "0100100";
+			else
+				HEX2 <= "1111111";
+			end if;
+			if (solutions(cursor_pos(1), cursor_pos(0), 2) = '1') then
+				HEX1 <= "0110000";
+			else
+				HEX1 <= "1111111";
+			end if;
+			if (solutions(cursor_pos(1), cursor_pos(0), 3) = '1') then
+				HEX0 <= "0011001";
+			else
+				HEX0 <= "1111111";
 			end if;
 		end process;
 end architecture;
