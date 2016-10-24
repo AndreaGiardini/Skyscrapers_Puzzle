@@ -30,9 +30,9 @@ entity Skyscrapers_Puzzle_Datapath is
 end entity;
 
 architecture behavior of Skyscrapers_Puzzle_Datapath is
-	--signal constraint_array		: CONSTRAINTS_TYPE := ((1, 3, 3, 2), (1, 4, 2, 3), (2, 1, 2, 2), (3, 2, 1, 3));
+	signal constraint_array		: CONSTRAINTS_TYPE := ((1, 3, 3, 2), (1, 4, 2, 3), (2, 1, 2, 2), (3, 2, 1, 3));
 	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 3, 1, 2), (2, 1, 4, 2), (2, 3, 1, 3), (2, 1, 3, 2));
-	signal constraint_array		: CONSTRAINTS_TYPE := ((2, 1, 3, 2), (2, 1, 4, 2), (2, 3, 1, 3), (2, 3, 1, 2));
+	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 1, 3, 2), (2, 1, 4, 2), (2, 3, 1, 3), (2, 3, 1, 2));
 	--signal constraint_array		: CONSTRAINTS_TYPE := ((1, 2, 3, 3), (1, 2, 2, 3), (3, 2, 2, 1), (3, 3, 2, 1));
 	signal matrix_array			: MATRIX_TYPE := ((others=> (others=> 0)));
 	signal solutions_array		: SOLUTIONS_TYPE := ((others => (others => (others => '1'))));
@@ -143,6 +143,44 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 		SOLUTIONS <= solutions_array;
 	end;
 	
+	function check_constraint (
+		constraint	: integer;
+		values		: ROW_TYPE
+	) return std_logic is
+	variable max	: integer := 0;
+	variable top	: integer := 0;
+	begin
+		for i in 0 to 3 loop
+			if (values(i) > max) then
+				max := values(i);
+				top := top + 1;
+			end if;
+			if (values(i) = 4) then
+				exit;
+			end if;
+		end loop;
+		if (top = constraint) then
+			return '1';
+		else
+			return '0';
+		end if;
+	end;
+	
+	function count_empty_cells_before_max (
+		values		: ROW_TYPE
+	) return integer is
+	variable count	: integer := 0;
+	begin
+		for i in 0 to 3 loop
+			if (values(i) = 4) then
+				exit;
+			elsif (values(i) = 0) then
+				count := count +1;
+			end if;
+		end loop;
+		return count;
+	end;
+	
 --	function check_left (
 --		row			: integer;
 --		max			: integer;
@@ -205,11 +243,13 @@ begin
 		variable pos_count	: integer := 0;
 		variable reverse		: integer := 0;
 		variable maxindex		: integer := 0;
+		variable zeroindex	: integer := 0;
 		variable number		: integer := 0;
 		variable innerMax		: integer := 0;
 		variable innerTop		: integer := 0;
 		variable checkRes		: std_logic := '0';
 		variable added_value	: std_logic := '0';
+		variable	tmpRow		: ROW_TYPE := (others => 0);
 	begin
 		CONSTRAINTS <= constraint_array;
 		if (RESET_N='0') then
@@ -410,6 +450,30 @@ begin
 				end loop;
 				
 				
+				-- "Intuitive" rule
+				for r in 0 to 3 loop
+					tmpRow := (matrix_array(0, r), matrix_array(1, r), matrix_array(2, r), matrix_array(3, r));
+					if ( count_empty_cells_before_max(tmpRow) = 1 ) then	-- Number of empty cells
+						
+						zeroindex := 0;
+						for c in 0 to 3 loop	-- Finding empty cell
+							if (matrix_array(c, r) = 0) then
+								zeroindex := c;
+								exit;
+							end if;
+						end loop;
+						
+						for n in 0 to 3 loop
+							if (solutions_array(zeroindex, r, n) = '1') then
+								tmpRow(zeroindex) := n+1;
+								if (check_constraint(constraint_array(0, r), tmpRow) = '0') then
+									remove_solution_from_cell(zeroindex, r, n+1);
+								end if;
+							end if;
+						end loop;
+					end if;
+				end loop;
+				
 				-- Insert values for cells with only one possible solution
 				for r in 0 to 3 loop
 					for c in 0 to 3 loop
@@ -422,10 +486,10 @@ begin
 							end if;
 						end loop;
 						if (sol_count = 1) then
-							remove_solution_from_row(c, solution);
-							remove_solution_from_column(r, solution);
-							matrix_array(c, r) <= solution;
-							--insert_value(c, r, solution+1);
+--							remove_solution_from_row(c, solution);
+--							remove_solution_from_column(r, solution);
+--							matrix_array(c, r) <= solution;
+							insert_value(c, r, solution);
 						end if;
 					end loop;
 				end loop;
