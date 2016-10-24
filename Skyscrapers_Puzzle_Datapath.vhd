@@ -43,9 +43,17 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	--signal constraint_array		: CONSTRAINTS_TYPE := ((3, 2, 4, 1), (3, 2, 1, 3), (1, 3, 3, 2), (2, 2, 1, 2));
 	
 	-- TEST 2 FREE FROM LEFT
-	signal constraint_array		: CONSTRAINTS_TYPE := ((2, 3, 1, 3), (2, 1, 3, 2), (2, 3, 1, 2), (2, 1, 4, 2));
+	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 3, 1, 3), (2, 1, 3, 2), (2, 3, 1, 2), (2, 1, 4, 2));
 	
-	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 3, 1, 2), (2, 1, 4, 2), (2, 3, 1, 3), (2, 1, 3, 2));
+	-- TEST 2 FREE FROM RIGHT
+	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 1, 4, 2), (2, 3, 1, 2), (2, 1, 3, 2), (2, 3, 1, 3));
+	
+	-- TEST 2 FREE FROM TOP
+	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 3, 1, 2), (3, 1, 3, 2), (2, 4, 1, 2), (2, 1, 3, 2));
+	
+	-- TEST 2 FREE FROM BOTTOM
+	signal constraint_array		: CONSTRAINTS_TYPE := ((2, 1, 3, 2), (2, 4, 1, 2), (3, 1, 3, 2), (2, 3, 1, 2));
+	
 	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 1, 3, 2), (2, 1, 4, 2), (2, 3, 1, 3), (2, 3, 1, 2));
 	--signal constraint_array		: CONSTRAINTS_TYPE := ((1, 2, 3, 3), (1, 2, 2, 3), (3, 2, 2, 1), (3, 3, 2, 1));
 	signal matrix_array			: MATRIX_TYPE := ((others=> (others=> 0)));
@@ -126,8 +134,6 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	) is
 	begin
 		if (number /= 0) then
-			--remove_solution_from_row(row, number);
-			--remove_solution_from_column(column, number);
 			for c in 0 to 3 loop
 				if (c /= column) then
 					solutions_array(row, c, number-1) <= '0';
@@ -207,54 +213,6 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 		end loop;
 		return count;
 	end;
-	
---	function check_left (
---		row			: integer;
---		max			: integer;
---		top			: integer;
---		start			: integer;
---		maxindex		: integer;
---		matrix		: MATRIX_TYPE;
---		constraints	: CONSTRAINTS_TYPE
---	) return std_logic is
---	variable innerMax	: integer := 0;
---	variable innerTop	: integer := 0;
---	begin
---		if (start > 3) then
---			return '1';
---		end if;
---		innerMax := max;
---		innerTop := top;
---		if (start = maxindex) then
---			innerMax := matrix(start, row);
---			innerTop := innerTop + 1;
---			if (constraints(0, row) /= innerTop) then
---				return '0';
---			else
---				return '1';
---			end if;
---		end if;
---		if (possible_values(start, row) = 1) then
---			if (matrix(start, row) > innerMax) then
---				innerMax := matrix(start, row);
---				innerTop := innerTop + 1;
---			end if;
---			return check_left(row, innerMax, innerTop, start+1, maxindex, matrix, constraints);
---		else -- many possible values
---			for s in 0 to 3 loop
---				if (solutions_array(start,row,s) = '1') then
---					if (s+1 > innerMax) then
---						innerMax := s+1;
---						innerTop := innerTop +1;
---					end if;
---					if (check_left(row, innerMax, innerTop, start+1, maxindex, matrix, constraints) = '0') then
---						remove_solution_from_cell(start, row, s+1);
---					end if;
---				end if;
---			end loop;
---			return '1';
---		end if;
---	end;
 		
 begin
 
@@ -272,7 +230,6 @@ begin
 		variable maxindex		: integer := 0;
 		variable zeroindex	: integer := 0;
 		variable zeroindex1	: integer := 0;
-		variable zeroindex2	: integer := 0;
 		variable number		: integer := 0;
 		variable innerMax		: integer := 0;
 		variable innerTop		: integer := 0;
@@ -521,7 +478,7 @@ begin
 										tmpRow(zeroindex1) := n2+1;
 										if (check_constraint(constraint_array(0, r), tmpRow) = '0') then
 											remove_solution_from_cell(zeroindex, r, n+1);
-											remove_solution_from_cell(zeroindex+1, r, n2+1);
+											remove_solution_from_cell(zeroindex1, r, n2+1);
 										end if;
 									end if;
 								end loop;
@@ -546,6 +503,33 @@ begin
 								end if;
 							end if;
 						end loop;
+					elsif ( count_empty_cells_before_max(tmpRow) = 2 AND count_empty_cells(tmpRow) = 2 ) then	-- Number of empty cells
+						zeroindex := -1;
+						zeroindex1 := -1;
+						for c in 0 to 3 loop -- Finding empty cell
+							if ( matrix_array(c, r) = 0 ) then
+								if ( zeroindex < 0 ) then
+									zeroindex := c;
+								else
+									zeroindex1 := c;
+									exit;
+								end if;
+							end if;
+						end loop;
+						for n in 0 to 3 loop
+							if (solutions_array(3-zeroindex, r, n) = '1') then
+								tmpRow(zeroindex) := n+1;
+								for n2 in 0 to 3 loop
+									if (solutions_array(3-zeroindex1, r, n2) = '1' AND n2 /= n) then
+										tmpRow(zeroindex1) := n2+1;
+										if (check_constraint(constraint_array(3, r), tmpRow) = '0') then
+											remove_solution_from_cell(3-zeroindex, r, n+1);
+											remove_solution_from_cell(3-zeroindex1, r, n2+1);
+										end if;
+									end if;
+								end loop;
+							end if;
+						end loop;
 					end if;
 				end loop;
 				-- COLUMNS
@@ -568,6 +552,33 @@ begin
 								end if;
 							end if;
 						end loop;
+					elsif ( count_empty_cells_before_max(tmpRow) = 2 AND count_empty_cells(tmpRow) = 2 ) then	-- Number of empty cells
+						zeroindex := -1;
+						zeroindex1 := -1;
+						for r in 0 to 3 loop -- Finding empty cell
+							if ( matrix_array(c, r) = 0 ) then
+								if ( zeroindex < 0 ) then
+									zeroindex := r;
+								else
+									zeroindex1 := r;
+									exit;
+								end if;
+							end if;
+						end loop;
+						for n in 0 to 3 loop
+							if (solutions_array(c, zeroindex, n) = '1') then
+								tmpRow(zeroindex) := n+1;
+								for n2 in 0 to 3 loop
+									if (solutions_array(c, zeroindex1, n2) = '1' AND n2 /= n) then
+										tmpRow(zeroindex1) := n2+1;
+										if (check_constraint(constraint_array(1, c), tmpRow) = '0') then
+											remove_solution_from_cell(c, zeroindex, n+1);
+											remove_solution_from_cell(c, zeroindex1, n2+1);
+										end if;
+									end if;
+								end loop;
+							end if;
+						end loop;
 					end if;
 					-- FROM BOTTOM
 					tmpRow := (matrix_array(c, 3), matrix_array(c, 2), matrix_array(c, 1), matrix_array(c, 0));
@@ -585,6 +596,33 @@ begin
 								if (check_constraint(constraint_array(2, c), tmpRow) = '0') then
 									remove_solution_from_cell(c, 3-zeroindex, n+1);
 								end if;
+							end if;
+						end loop;
+					elsif ( count_empty_cells_before_max(tmpRow) = 2 AND count_empty_cells(tmpRow) = 2 ) then	-- Number of empty cells
+						zeroindex := -1;
+						zeroindex1 := -1;
+						for r in 0 to 3 loop -- Finding empty cell
+							if ( matrix_array(c, r) = 0 ) then
+								if ( zeroindex < 0 ) then
+									zeroindex := r;
+								else
+									zeroindex1 := r;
+									exit;
+								end if;
+							end if;
+						end loop;
+						for n in 0 to 3 loop
+							if (solutions_array(c, 3-zeroindex, n) = '1') then
+								tmpRow(zeroindex) := n+1;
+								for n2 in 0 to 3 loop
+									if (solutions_array(c, 3-zeroindex1, n2) = '1' AND n2 /= n) then
+										tmpRow(zeroindex1) := n2+1;
+										if (check_constraint(constraint_array(2, c), tmpRow) = '0') then
+											remove_solution_from_cell(c, 3-zeroindex, n+1);
+											remove_solution_from_cell(c, 3-zeroindex1, n2+1);
+										end if;
+									end if;
+								end loop;
 							end if;
 						end loop;
 					end if;
@@ -651,49 +689,5 @@ begin
 			
 		end if;
 	end process;
-	
---	process(CLOCK, RESET_N, SOLVE)
---	begin
---		if (rising_edge(CLOCK) and SOLVE = '1') then
---			-- Regola constraint = 1
---			for r in 0 to 3 loop
---				if (constraint_array(0,r) = 1) then
---					--solutions_array(0,r,(3<=1, others<=0));
---					--solutions_array(0,r) <= (3 => '1', others => '0');
---					--solutions_array := (0 => (r => (3 => '1', others => '0')));
---					--matrix_array(r, 0) <= 4;
---					solutions_array(0, r, 0) <= '0';
---					solutions_array(0, r, 1) <= '0';
---					solutions_array(0, r, 2) <= '0';
---					solutions_array(0, r, 3) <= '1';
---				end if;
---			end loop;
---		end if;
---	end process;
-	
---	editMatrix: process(RESET_N, solutions_array)
---		variable solution		: integer := 0;
---		variable sol_count	: integer := 0;
---	begin
---		if (RESET_N='0') then
---			matrix_array <= ((others=> (others=> 0)));
---		end if;
---		-- Add known results to matrix
---		for r in 0 to 3 loop
---			for c in 0 to 3 loop
---				solution := 0;
---				sol_count := 0;
---				for s in 0 to 3 loop
---					if (solutions_array(c, r, s) = '1') then
---						solution := s + 1;
---						sol_count := sol_count + 1;
---					end if;
---				end loop;
---				if (sol_count = 1) then
---					matrix_array(c, r) <= solution;
---				end if;
---			end loop;
---		end loop;
---		MATRIX <= matrix_array;
---	end process;
+
 end behavior;
