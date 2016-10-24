@@ -132,6 +132,8 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 					solutions_array(row, column, n) <= '0';
 				end if;
 			end loop;
+			
+			matrix_array(row, column) <= number;
 		else
 			add_solution_to_row(row, matrix_array(row, column));
 			add_solution_to_column(column, matrix_array(row, column));
@@ -206,6 +208,7 @@ begin
 		variable innerMax		: integer := 0;
 		variable innerTop		: integer := 0;
 		variable checkRes		: std_logic := '0';
+		variable added_value	: std_logic := '0';
 	begin
 		CONSTRAINTS <= constraint_array;
 		if (RESET_N='0') then
@@ -215,6 +218,8 @@ begin
 			solutions_array <= ((others => (others => (others => '1'))));
 			matrix_array <= ((others=> (others=> 0)));
 			SOLUTIONS <= solutions_array;
+			MATRIX <= matrix_array;
+			added_value := '0';
 		elsif (rising_edge(CLOCK)) then
 			CURSOR_POS <= cursor_position;
 			if (MOVE_RIGHT = '1') then
@@ -240,54 +245,78 @@ begin
 			end if;
 			
 			if (SOLVE = '1') then
+				added_value := '0';
 			
 				-- Rule: constraint = 4
 				for r in 0 to 3 loop
-					if (constraint_array(0, r) = 4) then
+					if (constraint_array(0, r) = 4 AND matrix_array(0, r) = 0) then
 						insert_value(0, r, 1);
 						insert_value(1, r, 2);
 						insert_value(2, r, 3);
 						insert_value(3, r, 4);
+						added_value := '1';
+						exit;
 					end if;
-					if (constraint_array(3, r) = 4) then
+					if (constraint_array(3, r) = 4 AND matrix_array(3, r) = 0) then
 						insert_value(3, r, 1);
 						insert_value(2, r, 2);
 						insert_value(1, r, 3);
 						insert_value(0, r, 4);
+						added_value := '1';
+						exit;
 					end if;
 				end loop;
-				for c in 0 to 3 loop
-					if (constraint_array(1, c) = 4) then
-						insert_value(c, 0, 1);
-						insert_value(c, 1, 2);
-						insert_value(c, 2, 3);
-						insert_value(c, 3, 4);
-					end if;
-					if (constraint_array(2, c) = 4) then
-						insert_value(c, 3, 1);
-						insert_value(c, 2, 2);
-						insert_value(c, 1, 3);
-						insert_value(c, 0, 4);
-					end if;
-				end loop;
+				
+				if (added_value = '0') then
+					for c in 0 to 3 loop
+						if (constraint_array(1, c) = 4 AND matrix_array(c, 0) = 0) then
+							insert_value(c, 0, 1);
+							insert_value(c, 1, 2);
+							insert_value(c, 2, 3);
+							insert_value(c, 3, 4);
+							added_value := '1';
+							exit;
+						end if;
+						if (constraint_array(2, c) = 4 AND matrix_array(c, 3) = 0) then
+							insert_value(c, 3, 1);
+							insert_value(c, 2, 2);
+							insert_value(c, 1, 3);
+							insert_value(c, 0, 4);
+							added_value := '1';
+							exit;
+						end if;
+					end loop;
+				end if;
 			
 				-- Rule: constraint = 1
-				for r in 0 to 3 loop
-					if (constraint_array(0, r) = 1) then
-						insert_value(0, r, 4);
-					end if;
-					if (constraint_array(3, r) = 1) then
-						insert_value(3, r, 4);
-					end if;
-				end loop;
-				for c in 0 to 3 loop
-					if (constraint_array(1, c) = 1) then
-						insert_value(c, 0, 4);
-					end if;
-					if (constraint_array(2, c) = 1) then
-						insert_value(c, 3, 4);
-					end if;
-				end loop;
+				if (added_value = '0') then
+					for r in 0 to 3 loop
+						if (constraint_array(0, r) = 1 AND matrix_array(0, r) = 0) then
+							insert_value(0, r, 4);
+							added_value := '1';
+							exit;
+						end if;
+						if (constraint_array(3, r) = 1 AND matrix_array(3, r) = 0) then
+							insert_value(3, r, 4);
+							added_value := '1';
+							exit;
+						end if;
+					end loop;
+				end if;
+				if (added_value = '0') then
+					for c in 0 to 3 loop
+						if (constraint_array(1, c) = 1 AND matrix_array(c, 0) = 0) then
+							insert_value(c, 0, 4);
+							added_value := '1';
+							exit;
+						end if;
+						if (constraint_array(2, c) = 1 AND matrix_array(c, 3) = 0) then
+							insert_value(c, 3, 4);
+							added_value := '1';
+							exit;
+						end if;
+					end loop;
+				end if;
 				
 				-- Rule: constraint = 2
 				for r in 0 to 3 loop
@@ -361,6 +390,11 @@ begin
 							end if;
 						end loop;
 						if (pos_count = 1) then
+							for s in 0 to 3 loop
+								if (s /= n) then
+									remove_solution_from_cell(position, r, s+1);
+								end if;
+							end loop;
 							insert_value(position, r, n+1);
 						end if;
 					end loop;
@@ -376,22 +410,27 @@ begin
 							end if;
 						end loop;
 						if (pos_count = 1) then
+							for s in 0 to 3 loop
+								if (s /= n) then
+									remove_solution_from_cell(c, position, s+1);
+								end if;
+							end loop;
 							insert_value(c, position, n+1);
 						end if;
 					end loop;
 				end loop;
-				
-				--checkRes := check_left(1, 0, 0, 0, 2, matrix_array, constraint_array);
+--				
+--				--checkRes := check_left(1, 0, 0, 0, 2, matrix_array, constraint_array);
 				-- "Intuitive" rule: check if possible value breaks constraint
-				for r in 0 to 3 loop
-					reverse := 0;
-					maxindex := 0;
-					for c in 0 to 3 loop
-						if (matrix_array(c,r)=4) then
-							maxindex := c;
-						end if;
-					end loop;
-					-- From LEFT
+--				for r in 0 to 3 loop
+--					reverse := 0;
+--					maxindex := 0;
+--					for c in 0 to 3 loop
+--						if (matrix_array(c,r)=4) then
+--							maxindex := c;
+--						end if;
+--					end loop;
+--					-- From LEFT
 --					max := 0;
 --					top := 0;
 --					for c in 0 to 3 loop	-- Column loop
@@ -463,7 +502,27 @@ begin
 --							end if;
 --						end if;
 --					end loop;
+--				end loop;
+
+				for r in 0 to 3 loop
+					for c in 0 to 3 loop
+						solution := 0;
+						sol_count := 0;
+						for s in 0 to 3 loop
+							if (solutions_array(c, r, s) = '1') then
+								solution := s + 1;
+								sol_count := sol_count + 1;
+							end if;
+						end loop;
+						if (sol_count = 1) then
+							remove_solution_from_row(c, solution);
+							remove_solution_from_column(r, solution);
+							matrix_array(c, r) <= solution;
+							--insert_value(c, r, solution+1);
+						end if;
+					end loop;
 				end loop;
+
 				SOLUTIONS <= solutions_array;
 			end if;
 			
@@ -503,24 +562,7 @@ begin
 				end if;
 			end loop;
 			
-			for r in 0 to 3 loop
-				for c in 0 to 3 loop
-					solution := 0;
-					sol_count := 0;
-					for s in 0 to 3 loop
-						if (solutions_array(c, r, s) = '1') then
-							solution := s + 1;
-							sol_count := sol_count + 1;
-						end if;
-					end loop;
-					if (sol_count = 1) then
-						remove_solution_from_row(c, solution);
-						remove_solution_from_column(r, solution);
-						matrix_array(c, r) <= solution;
-						--insert_value(c, r, solution+1);
-					end if;
-				end loop;
-			end loop;
+			
 			MATRIX <= matrix_array;
 			
 		end if;
