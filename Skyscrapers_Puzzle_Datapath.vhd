@@ -34,13 +34,16 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	--signal constraint_array		: CONSTRAINTS_TYPE := ((1, 3, 3, 2), (1, 4, 2, 3), (2, 1, 2, 2), (3, 2, 1, 3));
 	
 	-- TEST FROM RIGHT
-	signal constraint_array		: CONSTRAINTS_TYPE := ((3, 2, 1, 3), (3, 2, 4, 1), (2, 2, 1, 2), (1, 3, 3, 2));
+	--signal constraint_array		: CONSTRAINTS_TYPE := ((3, 2, 1, 3), (3, 2, 4, 1), (2, 2, 1, 2), (1, 3, 3, 2));
 	
 	-- TEST FROM TOP
 	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 1, 2, 2), (2, 3, 3, 1), (3, 1, 2, 3), (1, 4, 2, 3));
 	
 	-- TEST FROM BOTTOM
 	--signal constraint_array		: CONSTRAINTS_TYPE := ((3, 2, 4, 1), (3, 2, 1, 3), (1, 3, 3, 2), (2, 2, 1, 2));
+	
+	-- TEST 2 FREE FROM LEFT
+	signal constraint_array		: CONSTRAINTS_TYPE := ((2, 3, 1, 3), (2, 1, 3, 2), (2, 3, 1, 2), (2, 1, 4, 2));
 	
 	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 3, 1, 2), (2, 1, 4, 2), (2, 3, 1, 3), (2, 1, 3, 2));
 	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 1, 3, 2), (2, 1, 4, 2), (2, 3, 1, 3), (2, 3, 1, 2));
@@ -192,6 +195,19 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 		return count;
 	end;
 	
+	function count_empty_cells (
+		values		: ROW_TYPE
+	) return integer is
+	variable count	: integer := 0;
+	begin
+		for i in 0 to 3 loop
+			if (values(i) = 0) then
+				count := count +1;
+			end if;
+		end loop;
+		return count;
+	end;
+	
 --	function check_left (
 --		row			: integer;
 --		max			: integer;
@@ -255,6 +271,8 @@ begin
 		variable reverse		: integer := 0;
 		variable maxindex		: integer := 0;
 		variable zeroindex	: integer := 0;
+		variable zeroindex1	: integer := 0;
+		variable zeroindex2	: integer := 0;
 		variable number		: integer := 0;
 		variable innerMax		: integer := 0;
 		variable innerTop		: integer := 0;
@@ -482,6 +500,33 @@ begin
 								end if;
 							end if;
 						end loop;
+					elsif ( count_empty_cells_before_max(tmpRow) = 2 AND count_empty_cells(tmpRow) = 2 ) then	-- Number of empty cells
+						zeroindex := -1;
+						zeroindex1 := -1;
+						for c in 0 to 3 loop -- Finding empty cell
+							if ( matrix_array(c, r) = 0 ) then
+								if ( zeroindex < 0 ) then
+									zeroindex := c;
+								else
+									zeroindex1 := c;
+									exit;
+								end if;
+							end if;
+						end loop;
+						for n in 0 to 3 loop
+							if (solutions_array(zeroindex, r, n) = '1') then
+								tmpRow(zeroindex) := n+1;
+								for n2 in 0 to 3 loop
+									if (solutions_array(zeroindex1, r, n2) = '1' AND n2 /= n) then
+										tmpRow(zeroindex1) := n2+1;
+										if (check_constraint(constraint_array(0, r), tmpRow) = '0') then
+											remove_solution_from_cell(zeroindex, r, n+1);
+											remove_solution_from_cell(zeroindex+1, r, n2+1);
+										end if;
+									end if;
+								end loop;
+							end if;
+						end loop;
 					end if;
 					-- FROM RIGHT
 					tmpRow := (matrix_array(3, r), matrix_array(2, r), matrix_array(1, r), matrix_array(0, r));
@@ -498,6 +543,47 @@ begin
 								tmpRow(zeroindex) := n+1;
 								if (check_constraint(constraint_array(3, r), tmpRow) = '0') then
 									remove_solution_from_cell(3-zeroindex, r, n+1);
+								end if;
+							end if;
+						end loop;
+					end if;
+				end loop;
+				-- COLUMNS
+				for c in 0 to 3 loop
+					-- FROM TOP
+					tmpRow := (matrix_array(c, 0), matrix_array(c, 1), matrix_array(c, 2), matrix_array(c, 3));
+					if ( count_empty_cells_before_max(tmpRow) = 1 ) then	-- Number of empty cells
+						zeroindex := 0;
+						for r in 0 to 3 loop	-- Finding empty cell
+							if (matrix_array(c, r) = 0) then
+								zeroindex := r;
+								exit;
+							end if;
+						end loop;
+						for n in 0 to 3 loop
+							if (solutions_array(c, zeroindex, n) = '1') then
+								tmpRow(zeroindex) := n+1;
+								if (check_constraint(constraint_array(1, c), tmpRow) = '0') then
+									remove_solution_from_cell(c, zeroindex, n+1);
+								end if;
+							end if;
+						end loop;
+					end if;
+					-- FROM BOTTOM
+					tmpRow := (matrix_array(c, 3), matrix_array(c, 2), matrix_array(c, 1), matrix_array(c, 0));
+					if ( count_empty_cells_before_max(tmpRow) = 1 ) then	-- Number of empty cells
+						zeroindex := 0;
+						for r in 0 to 3 loop	-- Finding empty cell
+							if (matrix_array(c, r) = 0) then
+								zeroindex := r;
+								exit;
+							end if;
+						end loop;
+						for n in 0 to 3 loop
+							if (solutions_array(c, 3-zeroindex, n) = '1') then
+								tmpRow(zeroindex) := n+1;
+								if (check_constraint(constraint_array(2, c), tmpRow) = '0') then
+									remove_solution_from_cell(c, 3-zeroindex, n+1);
 								end if;
 							end if;
 						end loop;
