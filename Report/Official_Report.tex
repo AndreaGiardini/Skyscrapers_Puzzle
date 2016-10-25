@@ -6,6 +6,13 @@
 \usepackage{float}
 \usepackage{minted}
 \usepackage[left=2cm,right=2cm,top=2cm,bottom=5cm]{geometry}
+\usepackage{soul}
+\usepackage{array}
+\def\mystrut(#1,#2){\vrule height #1 depth #2 width 0pt}
+\newcolumntype{C}[1]{%
+   >{\mystrut(3ex,2ex)\centering}%
+   p{#1}%
+   <{}}
 \textwidth 6in
 \textheight 9in
 \topmargin 0in
@@ -123,13 +130,25 @@ The Control Unit has the following signals:
   -- Connections with View
   REDRAW     : out   std_logic;
 \end{minted}
-\caption{Input and Output signals for Control Unit}
+%\caption{Input and Output signals for Control Unit}
 \end{minipage}
 \end{center}
+
+The Control Unit reads the serial line \textit{KEYBOARDDATA} and
+interprets the scan codes received in actions, that are then sent to the
+Datapath. In order not to consider a single press as multiple (since the
+clock data is fast) we are scanning the line periodically and not
+constantly.
 
 \newpage
 
 \section*{Datapath}
+
+The Datapath takes care of the logic of the game, it maintains in memory
+the numbers that the user added to the matrix. The user is able to add new
+numbers to the matrix from the keyboard and all its changes are registered
+inside the Datapath. Moreover, the Datapath contains all the logic to
+solve the puzzle.
 
 \begin{center}
 \begin{minipage}{0.5\textwidth}
@@ -151,7 +170,7 @@ The Control Unit has the following signals:
   CURSOR_POS  : out CURSOR_POS_TYPE;
   WINNER      : out std_logic;
 \end{minted}
-\caption{Input and Output signals for Datapath}
+%\caption{Input and Output signals for Datapath}
 \end{minipage}
 \end{center}
 
@@ -191,7 +210,7 @@ solved, in particular with the drawing of numbers.
   QUERY_CELL   : out block_pos_type;
   CELL_CONTENT : in  board_cell_type;
 \end{minted}
-\caption{Input and Output signals for View}
+%\caption{Input and Output signals for View}
 \end{minipage}
 \end{center}
 
@@ -254,11 +273,111 @@ The most difficult part was drawing the numbers on screen since the
 FrameBuffer library was not giving us any possibility of drawing custom
 images but only squares. To draw the numbers we had to define every digit
 as an array of colors, representing pixel by pixel the color that has to
-be placed.
+be placed. Following that we had to draw a square of 1x1 pixel for each
+pixel of the number's sprite.
 
 \chapter*{Solving algorithm}
 
+In order to solve the puzzle we had to implement in VHDL multiple methods
+to insert solutions on the board based on the constraints of the game. In
+the following section we will analyse the rules that we are applying to
+solve the problem and how they help us to remove possible solutions from
+the board.
 
+Starting with the structure, we represented the board as
+a three-dimensional matrix. This matrix has dimension 4 (length)
+x 4 (height) x 4 (possible solutions). We must consider that, when
+a number is inserted, that solution can be removed from the corresponding
+row and column, since we cannot have the same number twice on the same
+column or row.
+
+%Explain the approach: remove possible solutions instead of adding them
+
+Rules:
+
+\begin{itemize}
+
+    \item \ul{The constraint is \textbf{one} when the first element
+    is \textbf{four}}
+
+    Since only a single skyscraper is visible from that side, it means
+    that it must be the tallest one. In this case the number \textit{four}
+    is added to the matrix in first position.
+
+\begin{center}
+  1
+  \begin{tabular}{| C{0.5cm} | C{0.5cm} | C{0.5cm} | C{0.5cm} |}
+    \hline
+    4 &  &  &  \tabularnewline \hline
+  \end{tabular}
+\end{center}
+
+    \item \ul{The constraint is \textbf{two} when the second
+    element cannot be \textbf{three}}
+
+    If the constraint is two and the second element is three it is not
+    possible to match the requirements. In fact, in the best case, it will
+    always be possible to see the skyscrapers three, four and the one
+    occupying the first place.
+
+    The table below shows an example of this rule, which makes evident
+    than the \textit{three} cannot be assigned to the second position:
+
+\begin{center}
+  2
+  \begin{tabular}{| C{0.5cm} | C{0.5cm} | C{0.5cm} | C{0.5cm} |}
+    \hline
+    & 3 &  & 4 \tabularnewline \hline
+  \end{tabular}
+\end{center}
+
+    \item \ul{The constraint is \textbf{four} when row/column is
+    ordered}
+
+    Since the user is able to see all the skyscrapers it means that they
+    must be ordered on the line based on their height.
+
+\begin{center}
+  4
+  \begin{tabular}{| C{0.5cm} | C{0.5cm} | C{0.5cm} | C{0.5cm} |}
+    \hline
+   1 & 2 & 3 & 4 \tabularnewline \hline
+  \end{tabular}
+\end{center}
+
+    \item \ul{The opposite constraints are \textbf{two} and
+    \textbf{three} when the \textbf{four} is in the second \br position
+    starting from the lowest constraint}
+
+    The skyscraper with height four is always seen from both sides since
+    it is the tallest one. This rule can be summarized with: if the
+    constrain it X then 4 is in the X position or later.
+
+    If the constraints are two and three, we can define precisely the
+    position of the tallest skyscraper, as we can see from the tables
+    below.
+
+\begin{center}
+  2
+  \begin{tabular}{| C{0.5cm} | C{0.5cm} | C{0.5cm} | C{0.5cm} |}
+    \hline
+    & 4 &  &  \tabularnewline \hline
+  \end{tabular}
+  3
+\end{center}
+
+\begin{center}
+  3
+  \begin{tabular}{| C{0.5cm} | C{0.5cm} | C{0.5cm} | C{0.5cm} |}
+    \hline
+    &  & 4 &  \tabularnewline \hline
+  \end{tabular}
+  2
+\end{center}
+
+\end{itemize}
+
+% Explain here the "intuitive" rule
 
 \chapter*{Conclusion}
 
