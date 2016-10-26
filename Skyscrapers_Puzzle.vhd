@@ -35,8 +35,6 @@ entity Skyscrapers_Puzzle is
 end;
 
 architecture behavioral of Skyscrapers_Puzzle is
-	-- Output Clock Generator
-	signal clock_25Mhz: STD_LOGIC;
 	
 	-- Output Keyboard
 	signal keyCode: STD_LOGIC_VECTOR(7 downto 0);
@@ -79,21 +77,10 @@ architecture behavioral of Skyscrapers_Puzzle is
 	signal cursor_pos				: CURSOR_POS_TYPE;
 begin
 
-ClockDivider: entity work.Skyscrapers_Puzzle_ClockGenerator
-	port map
-	(
-		-- INPUT
-		clock			=> CLOCK_50,
-		
-		-- OUTPUT
-		clock_mezzi 	=> clock_25Mhz
-	);
-
 Keyboard: entity work.Skyscrapers_Puzzle_Keyboard
 	port map
 	(
 		-- INPUT
-		clk				=> clock_25Mhz,
 		keyboardClock	=> PS2_CLK,
 		keyboardData	=> PS2_DAT,
 		

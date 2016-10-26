@@ -7,7 +7,6 @@ entity Skyscrapers_Puzzle_Keyboard is
     Port 
 		( 	
 			-- INPUT
-			clk 				: in STD_LOGIC;
 			keyboardClock 	: in STD_LOGIC;
 			keyboardData 	: in STD_LOGIC;
 			
