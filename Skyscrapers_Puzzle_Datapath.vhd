@@ -15,12 +15,7 @@ entity Skyscrapers_Puzzle_Datapath is
 		SOLVE				: in	std_logic;
 		
 		KEYS				: in std_logic_vector(3 downto 0);
-		--MOVE_DIR			: in	std_logic_vector(3 downto 0);
-		--NUM_ROWS			: in	integer; -- Number of rows/columns and constraints (n)
-		--INPUT_NUMBER	: in	integer; -- Number to input at cursor position
 		
-		READY				: out	std_logic;
-		VICTORY			: out std_logic;
 		MATRIX			: out MATRIX_TYPE; -- (rows, columns)
 		CONSTRAINTS		: out CONSTRAINTS_TYPE; -- Index 0: LEFT, Index 1: TOP, Index 2: BOTTOM, Index 3: RIGHT
 		SOLUTIONS		: out SOLUTIONS_TYPE;

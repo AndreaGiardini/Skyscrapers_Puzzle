@@ -28,10 +28,7 @@ entity Skyscrapers_Puzzle_View is
 		FB_X0 			: out xy_coord_type;
 		FB_Y0 			: out xy_coord_type;
 		FB_X1 			: out xy_coord_type;
-		FB_Y1 			: out xy_coord_type;
-		
-		QUERY_CELL 		: out block_pos_type;
-		CELL_CONTENT 	: in board_cell_type
+		FB_Y1 			: out xy_coord_type
 	);
 end entity;
 
@@ -49,8 +46,6 @@ architecture behavioral of Skyscrapers_Puzzle_View is
 	
 begin
 
-	QUERY_CELL <= query_cell_r;
-	
 	process(CLOCK, RESET_N)
 		variable sprite_index, pixel_x, pixel_y, pixel_x_start_pos, pixel_y_start_pos, constraints_r, constraints_c	: integer := 0;
 		variable init_constraints: std_logic := '0';
