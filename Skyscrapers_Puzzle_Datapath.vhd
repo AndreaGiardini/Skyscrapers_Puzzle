@@ -13,6 +13,7 @@ entity Skyscrapers_Puzzle_Datapath is
 		MOVE_DOWN		: in std_logic;
 		MOVE_UP			: in std_logic;
 		SOLVE				: in	std_logic;
+		CLEAN				: in std_logic;
 		
 		KEYS				: in std_logic_vector(3 downto 0);
 		
@@ -272,6 +273,12 @@ begin
 			--schemaNumber := 3;
 		elsif (rising_edge(CLOCK)) then
 			CURSOR_POS <= cursor_position;
+			
+			if (CLEAN = '1') then
+				matrix_array		<= ((others=> (others=> 0)));
+				solutions_array	<= ((others => (others => (others => '1'))));
+			end if;
+			
 			if (MOVE_RIGHT = '1') then
 				cursor_position(1) <= cursor_position(1) + 1;
 			elsif (MOVE_LEFT = '1') then

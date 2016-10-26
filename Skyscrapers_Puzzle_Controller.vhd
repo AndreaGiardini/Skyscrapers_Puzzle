@@ -21,6 +21,7 @@ entity Skyscrapers_Puzzle_Controller is
 		MOVE_UP			: out std_logic;
 		NUMBER			: out std_logic_vector (3 downto 0);
 		SOLVE				: out std_logic;
+		CLEAN				: out std_logic;
 		
 		-- Connections with View
 		REDRAW			: out	std_logic
@@ -46,6 +47,7 @@ architecture behavioral of Skyscrapers_Puzzle_Controller is
 	constant key8		: std_logic_vector(7 downto 0):=X"3E";
 	constant key9		: std_logic_vector(7 downto 0):=X"46";
 	constant keyENTER	: std_logic_vector(7 downto 0):=X"5A";
+	constant keySPACE	: std_logic_vector(7 downto 0):=X"29";
 begin
 
 	MainProcess : process
@@ -58,6 +60,7 @@ begin
 		NUMBER 	  <= "1111";
 		SOLVE		  <= '0';
 		REDRAW 	  <= '0';
+		CLEAN		  <= '0';
 		if (TIME_10MS = '1') then
 			time_to_next_move  <= time_to_next_move - 1;
 		end if;
@@ -83,6 +86,7 @@ begin
 				when KEY8     => NUMBER <= "1000";
 				when KEY9     => NUMBER <= "1001";
 				when KEYENTER => SOLVE  <= '1';
+				when KEYSPACE => CLEAN	<= '1';
 				when others => -- do nothing
 					MOVE_RIGHT <= '0';
 					MOVE_LEFT  <= '0';
@@ -90,6 +94,7 @@ begin
 					MOVE_UP    <= '0';
 					NUMBER 	  <= "1111";
 					SOLVE		  <= '0';
+					CLEAN		  <= '0';
 			end case;
 			REDRAW <= '1';
 		end if;

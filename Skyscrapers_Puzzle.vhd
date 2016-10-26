@@ -41,6 +41,7 @@ architecture behavioral of Skyscrapers_Puzzle is
 
 	signal clock              : std_logic;
 	signal clock_vga          : std_logic;
+	signal clean				  : std_logic;
 	signal RESET_N            : std_logic;
 	signal fb_ready           : std_logic;
 	signal fb_clear           : std_logic;
@@ -147,6 +148,7 @@ Keyboard: entity work.Skyscrapers_Puzzle_Keyboard
 			MOVE_UP         => move_up,
 			NUMBER			 => number,
 			SOLVE				 => solve,
+			CLEAN 			 => clean,
 			REDRAW          => redraw
 		);
 		
@@ -160,6 +162,7 @@ Keyboard: entity work.Skyscrapers_Puzzle_Keyboard
 			MOVE_UP         => move_up,
 			KEYS				 => number,
 			SOLVE				=> solve,
+			CLEAN				=> clean,
 			MATRIX			=>	matrix,
 			CONSTRAINTS		=> constraints,
 			SOLUTIONS		=> solutions,
