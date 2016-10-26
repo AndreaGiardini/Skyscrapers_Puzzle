@@ -484,7 +484,7 @@ begin
 					if ( count_empty_cells_before_max(tmpRow) = 1 ) then	-- Number of empty cells
 						zeroindex := -1;
 						for c in 0 to 3 loop	-- Finding empty cell
-							if (tmpRow(r) = 0) then
+							if (tmpRow(c) = 0) then
 								zeroindex := c;
 								exit;
 							end if;
@@ -501,7 +501,7 @@ begin
 						zeroindex := -1;
 						zeroindex1 := -1;
 						for c in 0 to 3 loop -- Finding empty cell
-							if ( tmpRow(r) = 0 ) then
+							if ( tmpRow(c) = 0 ) then
 								if ( zeroindex < 0 ) then
 									zeroindex := c;
 								else
@@ -530,7 +530,7 @@ begin
 					if ( count_empty_cells_before_max(tmpRow) = 1 ) then	-- Number of empty cells
 						zeroindex := -1;
 						for c in 0 to 3 loop	-- Finding empty cell
-							if ( tmpRow(r) = 0) then
+							if ( tmpRow(c) = 0) then
 								zeroindex := c;
 								exit;
 							end if;
@@ -547,7 +547,7 @@ begin
 						zeroindex := -1;
 						zeroindex1 := -1;
 						for c in 0 to 3 loop -- Finding empty cell
-							if ( tmpRow(r) = 0 ) then
+							if ( tmpRow(c) = 0 ) then
 								if ( zeroindex < 0 ) then
 									zeroindex := c;
 								else
