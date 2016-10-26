@@ -173,6 +173,7 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 		else
 			add_solution_to_row(row, matrix_array(row, column));
 			add_solution_to_column(column, matrix_array(row, column));
+			matrix_array(row, column) <= number;
 		end if;
 		
 		SOLUTIONS <= solutions_array;
