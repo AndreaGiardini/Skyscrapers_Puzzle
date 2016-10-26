@@ -276,7 +276,9 @@ begin
 			
 			if (CLEAN = '1') then
 				matrix_array		<= ((others=> (others=> 0)));
+				MATRIX				<= ((others=> (others=> 0)));
 				solutions_array	<= ((others => (others => (others => '1'))));
+				SOLUTIONS 			<= ((others => (others => (others => '1'))));
 			end if;
 			
 			if (MOVE_RIGHT = '1') then
