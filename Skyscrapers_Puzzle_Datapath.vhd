@@ -60,12 +60,12 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
  		((3, 1, 2, 4), (2, 2, 1, 3), (3, 2, 2, 1), (2, 2, 2, 1)),	-- OK
  		--((4, 2, 2, 1), (4, 2, 2, 1), (1, 2, 3, 3), (1, 2, 3, 3)), -- Does not set 1 number
  		--((1, 2, 2, 2), (1, 2, 3, 4), (2, 2, 2, 1), (4, 3, 2, 1)),	-- OK
- 		--((2, 2, 1, 3), (2, 2, 2, 1), (3, 1, 2, 4), (3, 2, 2, 1)),
- 		--((2, 1, 2, 3), (2, 2, 4, 1), (2, 2, 1, 4), (1, 2, 3, 2)),
- 		--((3, 2, 1, 2), (3, 2, 1, 3), (2, 3, 3, 1), (2, 2, 3, 1)),
- 		((2, 3, 2, 1), (4, 1, 2, 2), (1, 3, 2, 3), (2, 1, 2, 3)),	-- OK
- 		((4, 3, 1, 2), (3, 3, 2, 1), (2, 1, 3, 3), (1, 2, 2, 2)),	-- Does not set 3 numbers
- 		((3, 2, 1, 2), (3, 3, 1, 2), (2, 1, 2, 3), (2, 1, 3, 3)),	-- Not solvable
+ 		((2, 2, 1, 3), (2, 2, 2, 1), (3, 1, 2, 4), (3, 2, 2, 1)),
+ 		((2, 1, 2, 3), (2, 2, 4, 1), (2, 2, 1, 4), (1, 2, 3, 2)),
+ 		((3, 2, 1, 2), (3, 2, 1, 3), (2, 3, 3, 1), (2, 2, 3, 1)),
+ 		--((2, 3, 2, 1), (4, 1, 2, 2), (1, 3, 2, 3), (2, 1, 2, 3)),	-- OK
+ 		--((4, 3, 1, 2), (3, 3, 2, 1), (2, 1, 3, 3), (1, 2, 2, 2)),	-- Does not set 3 numbers
+ 		--((3, 2, 1, 2), (3, 3, 1, 2), (2, 1, 2, 3), (2, 1, 3, 3)),	-- Not solvable
  		((2, 2, 3, 1), (3, 1, 2, 2), (1, 3, 2, 2), (3, 2, 1, 2))		-- OK
  	);
 	--signal constraint_array		: CONSTRAINTS_TYPE; --:= (others => (others => 0));
@@ -231,7 +231,7 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 		
 begin
 
-	process(CLOCK, RESET_N, SOLVE, cursor_position, matrix_array, constraint_array, solutions_array)
+	process(CLOCK, RESET_N, SOLVE, cursor_position, matrix_array, solutions_array)
 		variable max : integer := 0;
 		variable top : integer := 0;
 		variable top1 : integer := 0;
