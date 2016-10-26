@@ -47,10 +47,30 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 3, 1, 2), (3, 1, 3, 2), (2, 4, 1, 2), (2, 1, 3, 2));
 	
 	-- TEST 2 FREE FROM BOTTOM
-	signal constraint_array		: CONSTRAINTS_TYPE := ((2, 1, 3, 2), (2, 4, 1, 2), (3, 1, 3, 2), (2, 3, 1, 2));
+	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 1, 3, 2), (2, 4, 1, 2), (3, 1, 3, 2), (2, 3, 1, 2));
 	
 	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 1, 3, 2), (2, 1, 4, 2), (2, 3, 1, 3), (2, 3, 1, 2));
 	--signal constraint_array		: CONSTRAINTS_TYPE := ((1, 2, 3, 3), (1, 2, 2, 3), (3, 2, 2, 1), (3, 3, 2, 1));
+	
+	
+	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 1, 3, 2), (2, 4, 1, 2), (3, 1, 3, 2), (2, 3, 1, 2));
+ 	
+ 	-- Sample puzzles
+ 	constant schemas				: SCHEMAS_TYPE := (
+ 		((3, 1, 2, 4), (2, 2, 1, 3), (3, 2, 2, 1), (2, 2, 2, 1)),	-- OK
+ 		--((4, 2, 2, 1), (4, 2, 2, 1), (1, 2, 3, 3), (1, 2, 3, 3)), -- Does not set 1 number
+ 		--((1, 2, 2, 2), (1, 2, 3, 4), (2, 2, 2, 1), (4, 3, 2, 1)),	-- OK
+ 		--((2, 2, 1, 3), (2, 2, 2, 1), (3, 1, 2, 4), (3, 2, 2, 1)),
+ 		--((2, 1, 2, 3), (2, 2, 4, 1), (2, 2, 1, 4), (1, 2, 3, 2)),
+ 		--((3, 2, 1, 2), (3, 2, 1, 3), (2, 3, 3, 1), (2, 2, 3, 1)),
+ 		((2, 3, 2, 1), (4, 1, 2, 2), (1, 3, 2, 3), (2, 1, 2, 3)),	-- OK
+ 		((4, 3, 1, 2), (3, 3, 2, 1), (2, 1, 3, 3), (1, 2, 2, 2)),	-- Does not set 3 numbers
+ 		((3, 2, 1, 2), (3, 3, 1, 2), (2, 1, 2, 3), (2, 1, 3, 3)),	-- Not solvable
+ 		((2, 2, 3, 1), (3, 1, 2, 2), (1, 3, 2, 2), (3, 2, 1, 2))		-- OK
+ 	);
+	--signal constraint_array		: CONSTRAINTS_TYPE; --:= (others => (others => 0));
+	
+	
 	signal matrix_array			: MATRIX_TYPE := ((others=> (others=> 0)));
 	signal solutions_array		: SOLUTIONS_TYPE := ((others => (others => (others => '1'))));
 	signal cursor_position		: CURSOR_POS_TYPE;
@@ -231,8 +251,10 @@ begin
 		variable checkRes		: std_logic := '0';
 		variable added_value	: std_logic := '0';
 		variable	tmpRow		: ROW_TYPE := (others => 0);
+		variable schemaNumber: integer := 0;
 	begin
-		CONSTRAINTS <= constraint_array;
+			--constraint_array <= schemas(schemaNumber);
+ 			CONSTRAINTS <= schemas(schemaNumber);
 		if (RESET_N='0') then
 			win <= '0'; WINNER <= '0';
 			CURSOR_POS <= (0, 0);
@@ -242,6 +264,11 @@ begin
 			SOLUTIONS <= solutions_array;
 			MATRIX <= matrix_array;
 			added_value := '0';
+			if (schemaNumber = 4) then
+ 				schemaNumber := 0;
+ 			else
+ 				schemaNumber := schemaNumber + 1;
+ 			end if;
 		elsif (rising_edge(CLOCK)) then
 			CURSOR_POS <= cursor_position;
 			if (MOVE_RIGHT = '1') then
@@ -271,7 +298,7 @@ begin
 			
 				-- Rule: constraint = 4
 				for r in 0 to 3 loop
-					if (constraint_array(0, r) = 4 AND matrix_array(0, r) = 0) then
+					if (schemas(schemaNumber)(0, r) = 4 AND matrix_array(0, r) = 0) then
 						insert_value(0, r, 1);
 						insert_value(1, r, 2);
 						insert_value(2, r, 3);
@@ -279,7 +306,7 @@ begin
 						added_value := '1';
 						exit;
 					end if;
-					if (constraint_array(3, r) = 4 AND matrix_array(3, r) = 0) then
+					if (schemas(schemaNumber)(3, r) = 4 AND matrix_array(3, r) = 0) then
 						insert_value(3, r, 1);
 						insert_value(2, r, 2);
 						insert_value(1, r, 3);
@@ -291,7 +318,7 @@ begin
 				
 				if (added_value = '0') then
 					for c in 0 to 3 loop
-						if (constraint_array(1, c) = 4 AND matrix_array(c, 0) = 0) then
+						if (schemas(schemaNumber)(1, c) = 4 AND matrix_array(c, 0) = 0) then
 							insert_value(c, 0, 1);
 							insert_value(c, 1, 2);
 							insert_value(c, 2, 3);
@@ -299,7 +326,7 @@ begin
 							added_value := '1';
 							exit;
 						end if;
-						if (constraint_array(2, c) = 4 AND matrix_array(c, 3) = 0) then
+						if (schemas(schemaNumber)(2, c) = 4 AND matrix_array(c, 3) = 0) then
 							insert_value(c, 3, 1);
 							insert_value(c, 2, 2);
 							insert_value(c, 1, 3);
@@ -313,12 +340,12 @@ begin
 				-- Rule: constraint = 1
 				if (added_value = '0') then
 					for r in 0 to 3 loop
-						if (constraint_array(0, r) = 1 AND matrix_array(0, r) = 0) then
+						if (schemas(schemaNumber)(0, r) = 1 AND matrix_array(0, r) = 0) then
 							insert_value(0, r, 4);
 							added_value := '1';
 							exit;
 						end if;
-						if (constraint_array(3, r) = 1 AND matrix_array(3, r) = 0) then
+						if (schemas(schemaNumber)(3, r) = 1 AND matrix_array(3, r) = 0) then
 							insert_value(3, r, 4);
 							added_value := '1';
 							exit;
@@ -327,12 +354,12 @@ begin
 				end if;
 				if (added_value = '0') then
 					for c in 0 to 3 loop
-						if (constraint_array(1, c) = 1 AND matrix_array(c, 0) = 0) then
+						if (schemas(schemaNumber)(1, c) = 1 AND matrix_array(c, 0) = 0) then
 							insert_value(c, 0, 4);
 							added_value := '1';
 							exit;
 						end if;
-						if (constraint_array(2, c) = 1 AND matrix_array(c, 3) = 0) then
+						if (schemas(schemaNumber)(2, c) = 1 AND matrix_array(c, 3) = 0) then
 							insert_value(c, 3, 4);
 							added_value := '1';
 							exit;
@@ -342,47 +369,65 @@ begin
 				
 				-- Rule: constraint = 2
 				for r in 0 to 3 loop
-					if (constraint_array(0, r) = 2) then
+				
+					-- Rule: constraint = 2
+					if (schemas(schemaNumber)(0, r) = 2) then
 						remove_solution_from_cell(1, r, 3);
 					end if;
-					if (constraint_array(3, r) = 2) then
+					if (schemas(schemaNumber)(3, r) = 2) then
 						remove_solution_from_cell(2, r, 3);
 					end if;
+					
+					-- Rule: constraint = first valid position for 4
+					-- schemas(schemaNumber)(0,r)
+					if (schemas(schemaNumber)(0,r) > 1) then
+						--for c in 0 to schemas(schemaNumber)(0,r)-2 loop
+						for c in 0 to 3 loop
+ 							if (c > schemas(schemaNumber)(0, r)-2) then
+ 								exit;
+ 							end if;
+							remove_solution_from_cell(c, r, 4);
+						end loop;
+					end if;
+					-- schemas(schemaNumber)(3,r)
+					if (schemas(schemaNumber)(3,r) > 1) then
+						--for c in 3 to 5-schemas(schemaNumber)(3,r) loop
+						for c in 3 downto 0 loop
+ 							if (c < 5-schemas(schemaNumber)(3,r)) then
+ 								exit;
+ 							end if;
+							remove_solution_from_cell(c, r, 4);
+						end loop;
+					end if;
 				end loop;
 				for c in 0 to 3 loop
-					if (constraint_array(1, c) = 2) then
+				
+					-- Rule: constraint = 2
+					if (schemas(schemaNumber)(1, c) = 2) then
 						remove_solution_from_cell(c, 1, 3);
 					end if;
-					if (constraint_array(2, c) = 2) then
+					if (schemas(schemaNumber)(2, c) = 2) then
 						remove_solution_from_cell(c, 2, 3);
 					end if;
-				end loop;
-				
-				-- Rule: constraint = first valid position for 4
-				for r in 0 to 3 loop
-					-- constraint_array(0,r)
-					if (constraint_array(0,r) > 1) then
-						for c in 0 to constraint_array(0,r)-2 loop
+					
+					-- Rule: constraint = first valid position for 4
+					-- schemas(schemaNumber)(1,c)
+					if (schemas(schemaNumber)(1,c) > 1) then
+						--for r in 0 to schemas(schemaNumber)(1,c)-2 loop
+						for r in 0 to 3 loop
+ 							if (r > schemas(schemaNumber)(1,c) - 2) then
+ 								exit;
+ 							end if;
 							remove_solution_from_cell(c, r, 4);
 						end loop;
 					end if;
-					-- constraint_array(3,r)
-					if (constraint_array(3,r) > 1) then
-						for c in 3 to 5-constraint_array(3,r) loop
-							remove_solution_from_cell(c, r, 4);
-						end loop;
-					end if;
-				end loop;
-				for c in 0 to 3 loop
-					-- constraint_array(1,c)
-					if (constraint_array(1,c) > 1) then
-						for r in 0 to constraint_array(1,c)-2 loop
-							remove_solution_from_cell(c, r, 4);
-						end loop;
-					end if;
-					-- constraint_array(2,c)
-					if (constraint_array(2,c) > 1) then
-						for r in 3 to 5-constraint_array(2,c) loop
+					-- schemas(schemaNumber)(2,c)
+					if (schemas(schemaNumber)(2,c) > 1) then
+						--for r in 3 to 5-schemas(schemaNumber)(2,c) loop
+						for r in 3 downto 0 loop
+							if (r < 5-schemas(schemaNumber)(2,c)) then
+ 								exit;
+ 							end if;
 							remove_solution_from_cell(c, r, 4);
 						end loop;
 					end if;
@@ -447,7 +492,7 @@ begin
 						for n in 0 to 3 loop
 							if (solutions_array(zeroindex, r, n) = '1') then
 								tmpRow(zeroindex) := n+1;
-								if (check_constraint(constraint_array(0, r), tmpRow) = '0') then
+								if (check_constraint(schemas(schemaNumber)(0, r), tmpRow) = '0') then
 									remove_solution_from_cell(zeroindex, r, n+1);
 								end if;
 							end if;
@@ -471,7 +516,7 @@ begin
 								for n2 in 0 to 3 loop
 									if (solutions_array(zeroindex1, r, n2) = '1' AND n2 /= n) then
 										tmpRow(zeroindex1) := n2+1;
-										if (check_constraint(constraint_array(0, r), tmpRow) = '0') then
+										if (check_constraint(schemas(schemaNumber)(0, r), tmpRow) = '0') then
 											remove_solution_from_cell(zeroindex, r, n+1);
 											remove_solution_from_cell(zeroindex1, r, n2+1);
 										end if;
@@ -493,7 +538,7 @@ begin
 						for n in 0 to 3 loop
 							if (solutions_array(3-zeroindex, r, n) = '1') then
 								tmpRow(zeroindex) := n+1;
-								if (check_constraint(constraint_array(3, r), tmpRow) = '0') then
+								if (check_constraint(schemas(schemaNumber)(3, r), tmpRow) = '0') then
 									remove_solution_from_cell(3-zeroindex, r, n+1);
 								end if;
 							end if;
@@ -517,7 +562,7 @@ begin
 								for n2 in 0 to 3 loop
 									if (solutions_array(3-zeroindex1, r, n2) = '1' AND n2 /= n) then
 										tmpRow(zeroindex1) := n2+1;
-										if (check_constraint(constraint_array(3, r), tmpRow) = '0') then
+										if (check_constraint(schemas(schemaNumber)(3, r), tmpRow) = '0') then
 											remove_solution_from_cell(3-zeroindex, r, n+1);
 											remove_solution_from_cell(3-zeroindex1, r, n2+1);
 										end if;
@@ -542,7 +587,7 @@ begin
 						for n in 0 to 3 loop
 							if (solutions_array(c, zeroindex, n) = '1') then
 								tmpRow(zeroindex) := n+1;
-								if (check_constraint(constraint_array(1, c), tmpRow) = '0') then
+								if (check_constraint(schemas(schemaNumber)(1, c), tmpRow) = '0') then
 									remove_solution_from_cell(c, zeroindex, n+1);
 								end if;
 							end if;
@@ -566,7 +611,7 @@ begin
 								for n2 in 0 to 3 loop
 									if (solutions_array(c, zeroindex1, n2) = '1' AND n2 /= n) then
 										tmpRow(zeroindex1) := n2+1;
-										if (check_constraint(constraint_array(1, c), tmpRow) = '0') then
+										if (check_constraint(schemas(schemaNumber)(1, c), tmpRow) = '0') then
 											remove_solution_from_cell(c, zeroindex, n+1);
 											remove_solution_from_cell(c, zeroindex1, n2+1);
 										end if;
@@ -588,7 +633,7 @@ begin
 						for n in 0 to 3 loop
 							if (solutions_array(c, 3-zeroindex, n) = '1') then
 								tmpRow(zeroindex) := n+1;
-								if (check_constraint(constraint_array(2, c), tmpRow) = '0') then
+								if (check_constraint(schemas(schemaNumber)(2, c), tmpRow) = '0') then
 									remove_solution_from_cell(c, 3-zeroindex, n+1);
 								end if;
 							end if;
@@ -612,7 +657,7 @@ begin
 								for n2 in 0 to 3 loop
 									if (solutions_array(c, 3-zeroindex1, n2) = '1' AND n2 /= n) then
 										tmpRow(zeroindex1) := n2+1;
-										if (check_constraint(constraint_array(2, c), tmpRow) = '0') then
+										if (check_constraint(schemas(schemaNumber)(2, c), tmpRow) = '0') then
 											remove_solution_from_cell(c, 3-zeroindex, n+1);
 											remove_solution_from_cell(c, 3-zeroindex1, n2+1);
 										end if;
@@ -674,7 +719,7 @@ begin
 					end if;
 				end loop;
 				
-				if constraint_array(0,r) /= top1 or constraint_array(3,r) /= top2 then
+				if schemas(schemaNumber)(0,r) /= top1 or schemas(schemaNumber)(3,r) /= top2 then
 					win <= '0';
 				end if;
 			end loop;
