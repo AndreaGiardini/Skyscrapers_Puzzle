@@ -73,14 +73,14 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	signal matrix_array			: MATRIX_TYPE := ((others=> (others=> 0)));
 	signal solutions_array		: SOLUTIONS_TYPE := ((others => (others => (others => '1'))));
 	signal cursor_position		: CURSOR_POS_TYPE;
-	signal num_rows				: integer range 0 to 4 := 4;
+	signal num_rows				: integer := 4;
 	signal win						: std_logic := '0';
 	
 	function possible_values (
-		row		: integer range 0 to 3;
-		column	: integer range 0 to 3
+		row		: integer;
+		column	: integer
 	) return integer is
-	variable total : integer range 0 to 4:= 0;
+	variable total : integer := 0;
 	begin
 		for n in 0 to 3 loop
 			if (solutions_array(row, column, n)='1') then
@@ -91,8 +91,8 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	end;
 	
 	procedure remove_solution_from_row (
-		row		: integer range 0 to 3;
-		number	: integer range 0 to 3
+		row		: integer;
+		number	: integer
 	) is
 	begin
 		for c in 0 to 3 loop
@@ -101,8 +101,8 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	end;
 
 	procedure remove_solution_from_column (
-		column	: integer range 0 to 3;
-		number	: integer range 0 to 3
+		column	: integer;
+		number	: integer
 	) is
 	begin
 		for r in 0 to 3 loop
@@ -111,8 +111,8 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	end;
 
 	procedure add_solution_to_row (
-		row		: integer range 0 to 3;
-		number	: integer range 0 to 4
+		row		: integer;
+		number	: integer
 	) is
 	begin
 		for c in 0 to 3 loop
@@ -121,8 +121,8 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	end;
 
 	procedure add_solution_to_column (
-		column	: integer range 0 to 3;
-		number	: integer range 0 to 4
+		column	: integer;
+		number	: integer
 	) is
 	begin
 		for r in 0 to 3 loop
@@ -131,9 +131,9 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	end;
 
 	procedure remove_solution_from_cell (
-		row		: integer range 0 to 3;
-		column	: integer range 0 to 3;
-		number	: integer range 0 to 4 := 0
+		row		: integer;
+		column	: integer;
+		number	: integer := 0
 	) is
 	begin
 		if (number > 0) then
@@ -142,9 +142,9 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	end;
 	
 	procedure insert_value (
-		row		: integer range 0 to 3;
-		column	: integer range 0 to 3;
-		number	: integer range 0 to 4
+		row		: integer;
+		column	: integer;
+		number	: integer
 	) is
 	begin
 		if (number /= 0) then
@@ -178,11 +178,11 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	end;
 	
 	function check_constraint (
-		constraint	: integer range 1 to 4;
+		constraint	: integer;
 		values		: ROW_TYPE
 	) return std_logic is
-	variable max	: integer range 0 to 4 := 0;
-	variable top	: integer range 0 to 4 := 0;
+	variable max	: integer := 0;
+	variable top	: integer := 0;
 	begin
 		for i in 0 to 3 loop
 			if (values(i) > max) then
@@ -203,7 +203,7 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	function count_empty_cells_before_max (
 		values		: ROW_TYPE
 	) return integer is
-	variable count	: integer range 0 to 4 := 0;
+	variable count	: integer := 0;
 	begin
 		for i in 0 to 3 loop
 			if (values(i) = 4) then
@@ -218,7 +218,7 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	function count_empty_cells (
 		values		: ROW_TYPE
 	) return integer is
-	variable count	: integer range 0 to 4 := 0;
+	variable count	: integer := 0;
 	begin
 		for i in 0 to 3 loop
 			if (values(i) = 0) then
@@ -231,26 +231,26 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 begin
 
 	process(CLOCK, RESET_N, SOLVE, cursor_position, matrix_array, solutions_array)
-		variable max : integer range 0 to 4 := 0;
-		variable top : integer range 0 to 4 := 0;
-		variable top1 : integer range 0 to 4 := 0;
-		variable top2 : integer range 0 to 4 := 0;
-		variable r : integer range 0 to 4 := 0;
-		variable solution		: integer range 0 to 4 := 0;
-		variable sol_count	: integer range 0 to 4 := 0;
-		variable position		: integer range 0 to 4:= 0;
-		variable pos_count	: integer range 0 to 4 := 0;
-		variable reverse		: integer range 0 to 1 := 0;
-		variable maxindex		: integer range 0 to 4 := 0;
-		variable zeroindex	: integer range -1 to 4 := 0;
-		variable zeroindex1	: integer range -1 to 4 := 0;
-		variable number		: integer range 0 to 4 := 0;
-		variable innerMax		: integer range 0 to 4 := 0;
-		variable innerTop		: integer range 0 to 4 := 0;
+		variable max : integer := 0;
+		variable top : integer := 0;
+		variable top1 : integer := 0;
+		variable top2 : integer := 0;
+		variable r : integer := 0;
+		variable solution		: integer := 0;
+		variable sol_count	: integer := 0;
+		variable position		: integer := 0;
+		variable pos_count	: integer := 0;
+		variable reverse		: integer := 0;
+		variable maxindex		: integer := 0;
+		variable zeroindex	: integer := 0;
+		variable zeroindex1	: integer := 0;
+		variable number		: integer := 0;
+		variable innerMax		: integer := 0;
+		variable innerTop		: integer := 0;
 		variable checkRes		: std_logic := '0';
 		variable added_value	: std_logic := '0';
 		variable	tmpRow		: ROW_TYPE := (others => 0);
-		variable schemaNumber: integer range 0 to 9 := 0;
+		variable schemaNumber: integer := 0;
 	begin
  			
 		CONSTRAINTS <= schemas(schemaNumber);
