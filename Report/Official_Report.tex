@@ -291,7 +291,10 @@ a number is inserted, that solution can be removed from the corresponding
 row and column, since we cannot have the same number twice on the same
 column or row.
 
-%Explain the approach: remove possible solutions instead of adding them
+During the analysis phase we determined that the most convenient technique
+to set the correct value for a cell is to remove, from the set of possible
+solutions, all the values that are incorrect. In this way, when a cell has
+only a possible value, we set that value.
 
 Rules:
 
@@ -346,7 +349,7 @@ Rules:
 \end{center}
 
     \item \ul{The opposite constraints are \textbf{two} and
-    \textbf{three} when the \textbf{four} is in the second \br position
+    \textbf{three} when the \textbf{four} is in the second position
     starting from the lowest constraint}
 
     The skyscraper with height four is always seen from both sides since
