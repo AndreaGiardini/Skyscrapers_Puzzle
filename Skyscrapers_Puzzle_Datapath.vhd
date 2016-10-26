@@ -442,9 +442,9 @@ begin
 					-- FROM LEFT
 					tmpRow := (matrix_array(0, r), matrix_array(1, r), matrix_array(2, r), matrix_array(3, r));
 					if ( count_empty_cells_before_max(tmpRow) = 1 ) then	-- Number of empty cells
-						zeroindex := 0;
+						zeroindex := -1;
 						for c in 0 to 3 loop	-- Finding empty cell
-							if (matrix_array(c, r) = 0) then
+							if (tmpRow(r) = 0) then
 								zeroindex := c;
 								exit;
 							end if;
@@ -461,7 +461,7 @@ begin
 						zeroindex := -1;
 						zeroindex1 := -1;
 						for c in 0 to 3 loop -- Finding empty cell
-							if ( matrix_array(c, r) = 0 ) then
+							if ( tmpRow(r) = 0 ) then
 								if ( zeroindex < 0 ) then
 									zeroindex := c;
 								else
@@ -488,9 +488,9 @@ begin
 					-- FROM RIGHT
 					tmpRow := (matrix_array(3, r), matrix_array(2, r), matrix_array(1, r), matrix_array(0, r));
 					if ( count_empty_cells_before_max(tmpRow) = 1 ) then	-- Number of empty cells
-						zeroindex := 0;
+						zeroindex := -1;
 						for c in 0 to 3 loop	-- Finding empty cell
-							if (matrix_array(c, r) = 0) then
+							if ( tmpRow(r) = 0) then
 								zeroindex := c;
 								exit;
 							end if;
@@ -507,7 +507,7 @@ begin
 						zeroindex := -1;
 						zeroindex1 := -1;
 						for c in 0 to 3 loop -- Finding empty cell
-							if ( matrix_array(c, r) = 0 ) then
+							if ( tmpRow(r) = 0 ) then
 								if ( zeroindex < 0 ) then
 									zeroindex := c;
 								else
@@ -537,9 +537,9 @@ begin
 					-- FROM TOP
 					tmpRow := (matrix_array(c, 0), matrix_array(c, 1), matrix_array(c, 2), matrix_array(c, 3));
 					if ( count_empty_cells_before_max(tmpRow) = 1 ) then	-- Number of empty cells
-						zeroindex := 0;
+						zeroindex := -1;
 						for r in 0 to 3 loop	-- Finding empty cell
-							if (matrix_array(c, r) = 0) then
+							if (tmpRow(r) = 0) then
 								zeroindex := r;
 								exit;
 							end if;
@@ -556,7 +556,7 @@ begin
 						zeroindex := -1;
 						zeroindex1 := -1;
 						for r in 0 to 3 loop -- Finding empty cell
-							if ( matrix_array(c, r) = 0 ) then
+							if ( tmpRow(r) = 0 ) then
 								if ( zeroindex < 0 ) then
 									zeroindex := r;
 								else
@@ -583,9 +583,9 @@ begin
 					-- FROM BOTTOM
 					tmpRow := (matrix_array(c, 3), matrix_array(c, 2), matrix_array(c, 1), matrix_array(c, 0));
 					if ( count_empty_cells_before_max(tmpRow) = 1 ) then	-- Number of empty cells
-						zeroindex := 0;
+						zeroindex := -1;
 						for r in 0 to 3 loop	-- Finding empty cell
-							if (matrix_array(c, r) = 0) then
+							if (tmpRow(r) = 0) then
 								zeroindex := r;
 								exit;
 							end if;
@@ -602,7 +602,7 @@ begin
 						zeroindex := -1;
 						zeroindex1 := -1;
 						for r in 0 to 3 loop -- Finding empty cell
-							if ( matrix_array(c, r) = 0 ) then
+							if ( tmpRow(r) = 0 ) then
 								if ( zeroindex < 0 ) then
 									zeroindex := r;
 								else
