@@ -58,14 +58,13 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
  	-- Sample puzzles
  	constant schemas				: SCHEMAS_TYPE := (
  		((3, 1, 2, 4), (2, 2, 1, 3), (3, 2, 2, 1), (2, 2, 2, 1)),	-- OK
- 		--((4, 2, 2, 1), (4, 2, 2, 1), (1, 2, 3, 3), (1, 2, 3, 3)), -- Does not set 1 number
+ 		((4, 2, 2, 1), (4, 2, 2, 1), (1, 2, 3, 3), (1, 2, 3, 3)),   -- OK
  		--((1, 2, 2, 2), (1, 2, 3, 4), (2, 2, 2, 1), (4, 3, 2, 1)),	-- OK
- 		((2, 2, 1, 3), (2, 2, 2, 1), (3, 1, 2, 4), (3, 2, 2, 1)),
- 		((2, 1, 2, 3), (2, 2, 4, 1), (2, 2, 1, 4), (1, 2, 3, 2)),
- 		((3, 2, 1, 2), (3, 2, 1, 3), (2, 3, 3, 1), (2, 2, 3, 1)),
+ 		((2, 2, 1, 3), (3, 1, 2, 4), (2, 2, 2, 1), (3, 2, 2, 1)),	-- OK
+ 		--((2, 1, 2, 3), (2, 2, 4, 1), (2, 2, 1, 4), (1, 2, 3, 2)), -- OK
+ 		--((3, 2, 1, 2), (3, 2, 1, 3), (2, 3, 3, 1), (2, 2, 3, 1)),	-- Does not set all number (too difficult)
  		--((2, 3, 2, 1), (4, 1, 2, 2), (1, 3, 2, 3), (2, 1, 2, 3)),	-- OK
- 		--((4, 3, 1, 2), (3, 3, 2, 1), (2, 1, 3, 3), (1, 2, 2, 2)),	-- Does not set 3 numbers
- 		--((3, 2, 1, 2), (3, 3, 1, 2), (2, 1, 2, 3), (2, 1, 3, 3)),	-- Not solvable
+ 		((4, 3, 1, 2), (3, 3, 2, 1), (2, 1, 3, 3), (1, 2, 2, 2)),	-- OK
  		((2, 2, 3, 1), (3, 1, 2, 2), (1, 3, 2, 2), (3, 2, 1, 2))		-- OK
  	);
 	--signal constraint_array		: CONSTRAINTS_TYPE; --:= (others => (others => 0));
@@ -253,8 +252,8 @@ begin
 		variable	tmpRow		: ROW_TYPE := (others => 0);
 		variable schemaNumber: integer := 0;
 	begin
-			--constraint_array <= schemas(schemaNumber);
- 			CONSTRAINTS <= schemas(schemaNumber);
+ 			
+		CONSTRAINTS <= schemas(schemaNumber);
 		if (RESET_N='0') then
 			win <= '0'; WINNER <= '0';
 			CURSOR_POS <= (0, 0);
@@ -269,6 +268,8 @@ begin
  			else
  				schemaNumber := schemaNumber + 1;
  			end if;
+			--CONSTRAINTS <= schemas(schemaNumber);
+			--schemaNumber := 3;
 		elsif (rising_edge(CLOCK)) then
 			CURSOR_POS <= cursor_position;
 			if (MOVE_RIGHT = '1') then
