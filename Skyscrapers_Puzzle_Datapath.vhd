@@ -211,7 +211,7 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 		
 begin
 
-	process(CLOCK, RESET_N, SOLVE, cursor_position)
+	process(CLOCK, RESET_N, SOLVE, cursor_position, matrix_array, constraint_array, solutions_array)
 		variable max : integer := 0;
 		variable top : integer := 0;
 		variable top1 : integer := 0;

@@ -15,7 +15,7 @@ entity Skyscrapers_Puzzle is
 		HEX1                : out  std_logic_vector(6 downto 0);
 		HEX2                : out  std_logic_vector(6 downto 0);
 		HEX3                : out  std_logic_vector(6 downto 0);
-		LEDG					  : out std_logic_vector(7 downto 0);
+		LEDG					  : out std_logic_vector(0 downto 0);
 
 		SW                  : in  std_logic_vector(9 downto 9);
 		VGA_R               : out std_logic_vector(3 downto 0);
