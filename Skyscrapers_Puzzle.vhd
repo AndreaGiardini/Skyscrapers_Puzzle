@@ -74,6 +74,10 @@ architecture behavioral of Skyscrapers_Puzzle is
 	signal constraints			: CONSTRAINTS_TYPE;
 	signal solutions				: SOLUTIONS_TYPE;
 	signal cursor_pos				: CURSOR_POS_TYPE;
+	
+	-- Frame Rate
+	constant FRAME_PERIOD    	 : integer := 10; -- One frame every 100ms
+	signal   time_to_next_frame : integer range 0 to FRAME_PERIOD-1;
 begin
 
 Keyboard: entity work.Skyscrapers_Puzzle_Keyboard
@@ -148,8 +152,7 @@ Keyboard: entity work.Skyscrapers_Puzzle_Keyboard
 			MOVE_UP         => move_up,
 			NUMBER			 => number,
 			SOLVE				 => solve,
-			CLEAN 			 => clean,
-			REDRAW          => redraw
+			CLEAN 			 => clean
 		);
 		
 	datapath : entity work.Skyscrapers_Puzzle_Datapath
@@ -211,6 +214,23 @@ Keyboard: entity work.Skyscrapers_Puzzle_Keyboard
 				counter := counter+1;
 				time_10ms <= '0';			
 			end if;
+		end if;
+	end process;
+	
+	framerate : process
+	begin
+		wait until rising_edge(CLOCK);
+		REDRAW <= '0';
+		if (RESET_N = '0') then
+			time_to_next_frame  <= 0;
+			REDRAW 				  <= '1';
+		end if;
+		if (time_10ms = '1') then
+			time_to_next_frame  <= time_to_next_frame - 1;
+		end if;
+		if (time_to_next_frame = 0) then
+			time_to_next_frame  <= FRAME_PERIOD - 1;
+			REDRAW <= '1';
 		end if;
 	end process;
 		

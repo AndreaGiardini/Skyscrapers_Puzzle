@@ -22,9 +22,6 @@ entity Skyscrapers_Puzzle_Controller is
 		NUMBER			: out std_logic_vector (3 downto 0);
 		SOLVE				: out std_logic;
 		CLEAN				: out std_logic;
-		
-		-- Connections with View
-		REDRAW			: out	std_logic
 	);
 end entity;
 
@@ -59,14 +56,12 @@ begin
 		MOVE_UP 	  <= '0';
 		NUMBER 	  <= "1111";
 		SOLVE		  <= '0';
-		REDRAW 	  <= '0';
 		CLEAN		  <= '0';
 		if (TIME_10MS = '1') then
 			time_to_next_move  <= time_to_next_move - 1;
 		end if;
 		if (RESET_N = '0') then
 			time_to_next_move	<= 0;
-			REDRAW 				<= '1';
 		end if;
 		if (time_to_next_move = 0) then
 			time_to_next_move  <= MOVEMENT_SPEED - 1;
@@ -96,7 +91,6 @@ begin
 					SOLVE		  <= '0';
 					CLEAN		  <= '0';
 			end case;
-			REDRAW <= '1';
 		end if;
 	end process;
 
