@@ -324,7 +324,8 @@ Rules:
     occupying the first place.
 
     The table below shows an example of this rule, which makes evident
-    than the \textit{three} cannot be assigned to the second position:
+    than the \textit{three} \ul{cannot} be assigned to the second
+    position:
 
 \begin{center}
   2
@@ -378,9 +379,49 @@ Rules:
   2
 \end{center}
 
+    It is possible to specify a more general rule, from which we deducted
+    this one, that says: the constraint is X when \textbf{four} is in
+    position X or more. This means that if the constraint is \textbf{two}
+    then the number \textbf{four} can be in the second, third or fourth
+    position, but not first. If the constraint is \textbf{three} then the
+    number \textbf{four} can be in the third or in the fourth position.
+    The combination of these constraints on the opposite side of the same
+    row gives us a precise position for the number \textbf{four} in the
+    line.
+
 \end{itemize}
 
-% Explain here the "intuitive" rule
+The rules that we described previously can help us to reduce the number of
+possible solutions in one cell. Unfortunately, just using those rules, our
+game is still not able to resolve some obvious cases, like for example:
+
+\begin{center}
+  3
+  \begin{tabular}{| C{0.5cm} | C{0.5cm} | C{0.5cm} | C{0.5cm} |}
+    \hline
+    & 2 & 4 &  \tabularnewline \hline
+  \end{tabular}
+  2
+\end{center}
+
+\begin{center}
+  3
+  \begin{tabular}{| C{0.5cm} | C{0.5cm} | C{0.5cm} | C{0.5cm} |}
+    \hline
+    &  & 4 & 1 \tabularnewline \hline
+  \end{tabular}
+  2
+\end{center}
+
+In the examples, both empty cells have two possible solutions and, for this
+reason no number is assigned to them. We can also notice that, for each
+example, there are two possible solution and that only one of them is
+correct.
+
+The intuitive rule tries to address this problem, when the number of
+possible combinations is a row is two the algorithm tries to verify which
+one of them is correct. This rule allowed us to solve more complex
+schemas, where the intuition of the user was needed to complete the board.
 
 \chapter*{Conclusion}
 
