@@ -186,7 +186,13 @@ Keyboard: entity work.Skyscrapers_Puzzle_Keyboard
 			FB_Y0           => fb_y0,
 			FB_X1           => fb_x1,
 			FB_Y1           => fb_y1,
+			HEX0            => HEX0,
+			HEX1            => HEX1,
+			HEX2            => HEX2,
+			HEX3				 => HEX3,
+			
 			MATRIX			=>	matrix,
+			SOLUTIONS		=> solutions,
 			CONSTRAINTS		=> constraints,
 			CURSOR_POS		=> cursor_pos
 		);		
@@ -208,33 +214,4 @@ Keyboard: entity work.Skyscrapers_Puzzle_Keyboard
 		end if;
 	end process;
 		
-	possible_solutions : process(CLOCK, RESET_N, cursor_pos, solutions)
-	begin
-		if (RESET_N = '0') then
-			HEX3 <= "1111001";
-			HEX2 <= "0100100";
-			HEX1 <= "0110000";
-			HEX0 <= "0011001";
-		end if;
-		if (solutions(cursor_pos(1), cursor_pos(0), 0) = '1') then
-			HEX3 <= "1111001";
-		else
-			HEX3 <= "1111111";
-		end if;
-		if (solutions(cursor_pos(1), cursor_pos(0), 1) = '1') then
-			HEX2 <= "0100100";
-		else
-			HEX2 <= "1111111";
-		end if;
-		if (solutions(cursor_pos(1), cursor_pos(0), 2) = '1') then
-			HEX1 <= "0110000";
-		else
-			HEX1 <= "1111111";
-		end if;
-		if (solutions(cursor_pos(1), cursor_pos(0), 3) = '1') then
-			HEX0 <= "0011001";
-		else
-			HEX0 <= "1111111";
-		end if;
-	end process;
 end architecture;

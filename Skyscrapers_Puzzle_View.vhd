@@ -13,6 +13,7 @@ entity Skyscrapers_Puzzle_View is
 		RESET_N			: in	std_logic;
 		
 		MATRIX			: in MATRIX_TYPE; -- (rows, columns)
+		SOLUTIONS		: in SOLUTIONS_TYPE;
 		CONSTRAINTS		: in CONSTRAINTS_TYPE; -- Index 0: LEFT, Index 1: TOP, Index 2: BOTTOM, Index 3: RIGHT
 		CURSOR_POS		: in CURSOR_POS_TYPE;
 		
@@ -28,7 +29,11 @@ entity Skyscrapers_Puzzle_View is
 		FB_X0 			: out xy_coord_type;
 		FB_Y0 			: out xy_coord_type;
 		FB_X1 			: out xy_coord_type;
-		FB_Y1 			: out xy_coord_type
+		FB_Y1 			: out xy_coord_type;
+		HEX0           : out  std_logic_vector(6 downto 0);
+		HEX1           : out  std_logic_vector(6 downto 0);
+		HEX2           : out  std_logic_vector(6 downto 0);
+		HEX3           : out  std_logic_vector(6 downto 0)
 	);
 end entity;
 
@@ -45,6 +50,36 @@ architecture behavioral of Skyscrapers_Puzzle_View is
 	signal query_cell_r 	: block_pos_type;
 	
 begin
+
+	possible_solutions : process(CLOCK, RESET_N, cursor_pos, solutions)
+	begin
+		if (RESET_N = '0') then
+			HEX3 <= "1111001";
+			HEX2 <= "0100100";
+			HEX1 <= "0110000";
+			HEX0 <= "0011001";
+		end if;
+		if (solutions(cursor_pos(1), cursor_pos(0), 0) = '1') then
+			HEX3 <= "1111001";
+		else
+			HEX3 <= "1111111";
+		end if;
+		if (solutions(cursor_pos(1), cursor_pos(0), 1) = '1') then
+			HEX2 <= "0100100";
+		else
+			HEX2 <= "1111111";
+		end if;
+		if (solutions(cursor_pos(1), cursor_pos(0), 2) = '1') then
+			HEX1 <= "0110000";
+		else
+			HEX1 <= "1111111";
+		end if;
+		if (solutions(cursor_pos(1), cursor_pos(0), 3) = '1') then
+			HEX0 <= "0011001";
+		else
+			HEX0 <= "1111111";
+		end if;
+	end process;
 
 	process(CLOCK, RESET_N)
 		variable sprite_index, pixel_x, pixel_y, pixel_x_start_pos, pixel_y_start_pos, constraints_r, constraints_c	: integer := 0;
