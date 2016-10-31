@@ -61,7 +61,7 @@ solution and display the winning logo to the user.
 \chapter*{Introduction to the puzzle}
 
 Each puzzle consists of an NxN grid with some clues along its sides. The
-object is to place a skyscraper in each square, with a height between one
+goal is to place a skyscraper in each square, with a height between one
 and N, so that no two skyscrapers in a row or column have the same number
 of floors. In addition, the number of visible skyscrapers, as viewed from
 the direction of each clue, is equal to the value of the clue. Note that
@@ -80,12 +80,6 @@ a combination of more constraints to identify the correct value. The game
 can be extended with a bigger matrix or to include parks ( empty spaces, so
 buildings with zero height in the matrix ). In our case we decided to
 solve the classic version of the puzzle, a 4x4 matrix with no parks.
-
-\chapter*{Game analysis and structure}
-
-To better organize the game we decided to follow the MVC patter, giving to
-each class a single responsibility. In the following sections we will
-analyse in details what are the responsibilities of each class:
 
 \newpage
 
@@ -112,23 +106,21 @@ The Control Unit has the following signals:
 \begin{center}
 \begin{minipage}{0.5\textwidth}
 \begin{minted}{vhdl}
-  CLOCK        : in  std_logic;
-  KEYBOARDDATA : in  std_logic_vector (7 downto 0);
-  RESET_N      : in  std_logic;
-  TIME_10MS    : in  std_logic;
+  CLOCK        : in std_logic;
+  keyboardData : in std_logic_vector (7 downto 0);
+  RESET_N      : in std_logic;
+  TIME_10MS    : in std_logic;
 
   CURSOR_POS   : in CURSOR_POS_TYPE;
 
-  -- Connections with DataPath
+  -- Connections with Data-Path
   MOVE_RIGHT   : out std_logic;
   MOVE_LEFT    : out std_logic;
   MOVE_DOWN    : out std_logic;
   MOVE_UP      : out std_logic;
   NUMBER       : out std_logic_vector (3 downto 0);
   SOLVE        : out std_logic;
-
-  -- Connections with View
-  REDRAW     : out   std_logic;
+  CLEAN        : out std_logic;
 \end{minted}
 %\caption{Input and Output signals for Control Unit}
 \end{minipage}
@@ -153,26 +145,36 @@ solve the puzzle.
 \begin{center}
 \begin{minipage}{0.5\textwidth}
 \begin{minted}{vhdl}
-  CLOCK       : in  std_logic;
-  RESET_N     : in  std_logic;
-  MOVE_RIGHT  : in  std_logic;
-  MOVE_LEFT   : in  std_logic;
-  MOVE_DOWN   : in  std_logic;
-  MOVE_UP     : in  std_logic;
-  SOLVE       : in  std_logic;
+  CLOCK       : in std_logic;
+  RESET_N     : in std_logic;
+  MOVE_RIGHT  : in std_logic;
+  MOVE_LEFT   : in std_logic;
+  MOVE_DOWN   : in std_logic;
+  MOVE_UP     : in std_logic;
+  SOLVE       : in std_logic;
+  CLEAN       : in std_logic;
 
-  KEYS        : in  std_logic_vector(3 downto 0);
+  KEYS        : in std_logic_vector (3 downto 0);
 
-  READY       : out std_logic;
-  VICTORY     : out std_logic;
   MATRIX      : out MATRIX_TYPE;
   CONSTRAINTS : out CONSTRAINTS_TYPE;
+  SOLUTIONS   : out SOLUTIONS_TYPE;
   CURSOR_POS  : out CURSOR_POS_TYPE;
-  WINNER      : out std_logic;
+  WINNER      : out std_logic
 \end{minted}
 %\caption{Input and Output signals for Datapath}
 \end{minipage}
 \end{center}
+
+The Datapath is the main component of the project since it stores the
+matrix with the values, handles the inputs received from the Controller
+and contains the algorithm to solve the puzzle.
+
+Every cell in the schema, contains initially all the possible values that
+can be assigned to that cell. Using the constraints and the input of the
+users the datapath removes possible solutions from the surrounding cells.
+Whenever a cell has only one possible solution that value is assigned to
+it and displayed on screen.
 
 \newpage
 
@@ -186,12 +188,13 @@ solved, in particular with the drawing of numbers.
 \begin{center}
 \begin{minipage}{0.5\textwidth}
 \begin{minted}{vhdl}
-  CLOCK        : in  std_logic;
-  RESET_N      : in  std_logic;
+  CLOCK        : in std_logic;
+  RESET_N      : in std_logic;
 
-  MATRIX       : in  MATRIX_TYPE;
-  CONSTRAINTS  : in  CONSTRAINTS_TYPE;
-  CURSOR_POS   : in  CURSOR_POS_TYPE;
+  MATRIX       : in MATRIX_TYPE;
+  SOLUTIONS    : in SOLUTIONS_TYPE;
+  CONSTRAINTS  : in CONSTRAINTS_TYPE;
+  CURSOR_POS   : in CURSOR_POS_TYPE;
 
   REDRAW       : in  std_logic;
 
@@ -206,9 +209,10 @@ solved, in particular with the drawing of numbers.
   FB_Y0        : out xy_coord_type;
   FB_X1        : out xy_coord_type;
   FB_Y1        : out xy_coord_type;
-
-  QUERY_CELL   : out block_pos_type;
-  CELL_CONTENT : in  board_cell_type;
+  HEX0         : out std_logic_vector (6 downto 0);
+  HEX1         : out std_logic_vector (6 downto 0);
+  HEX2         : out std_logic_vector (6 downto 0);
+  HEX3         : out std_logic_vector (6 downto 0)
 \end{minted}
 %\caption{Input and Output signals for View}
 \end{minipage}
