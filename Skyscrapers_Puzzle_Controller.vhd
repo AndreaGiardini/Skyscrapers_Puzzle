@@ -7,10 +7,10 @@ use work.Skyscrapers_Puzzle_Types.all;
 entity Skyscrapers_Puzzle_Controller is
 	port
 	(
-		CLOCK				: in  std_logic;
-		keyboardData	: IN STD_LOGIC_VECTOR (7 downto 0);
-		RESET_N        : in  std_logic;
-		TIME_10MS      : in  std_logic;
+		CLOCK				: in std_logic;
+		keyboardData	: in std_logic_vector (7 downto 0);
+		RESET_N        : in std_logic;
+		TIME_10MS      : in std_logic;
 		
 		CURSOR_POS		: in CURSOR_POS_TYPE;
 
