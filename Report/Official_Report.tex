@@ -248,7 +248,7 @@ Every state draws a different object:
 \begin{itemize}
   \item CLEAR\_SCENE
 
-  Cleans the Frame in memory, filling it with a black square which will be
+  Cleans the frame in memory, filling it with a black square which will be
   the background of our game.
 
   \item DRAW\_BOARD\_OUTLINE
@@ -270,7 +270,7 @@ Every state draws a different object:
   \item FLIP\_FRAMEBUFFER
 
   This state is reached when the drawing has been completed and we are
-  ready to display it on the monitor.
+  ready to display it on the screen.
 \end{itemize}
 
 The most difficult part was drawing the numbers on screen since the
@@ -423,12 +423,30 @@ example, there are two possible solution and that only one of them is
 correct.
 
 The intuitive rule tries to address this problem, when the number of
-possible combinations is a row is two the algorithm tries to verify which
+possible combinations in a row is two the algorithm tries to verify which
 one of them is correct. This rule allowed us to solve more complex
 schemas, where the intuition of the user was needed to complete the board.
 
 \chapter*{Conclusion}
 
+The game presented is complete and functional in all its aspects. The
+algorithm studied to solve the game introduced a noticeable complexity
+from the logic point of view. Due to this we reached the logic limits of
+the board: the current project fits on the board just after a heavy
+optimization.
+
+\section*{Future developments}
+
+Currently the limits of the board have been reached so the space for
+possible developments is quite small. However, with some hard optimization
+of the code or with a board with more memory, the following improvements
+could be coded:
+
+\begin{itemize}
+
+    \item Generate boards dynamically
+
+\end{itemize}
 
 \renewcommand{\bibname}{References}
 \begin{thebibliography}{100}
