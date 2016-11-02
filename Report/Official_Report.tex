@@ -526,13 +526,29 @@ the first cell and \textbf{two} as infeasible for the second cell. This way,
 both cells now have only one feasible value, which is added into the respective
 cell.
 
-\chapter*{Conclusion}
+\chapter*{Conclusions}
 
 The game presented is complete and functional in all of its aspects. The
 algorithm studied to solve the game introduced a noticeable complexity
 from the logic point of view. Due to this we reached the logic limits of
 the board: the current project barely fits on it, but a heavy optimization
 was needed.
+
+Unsurprisingly, the hardest part to fit was the solver logic; some more
+resources could be freed with a more extensive rewrite of its code, but we
+decided to aim for a good compromise between resources usage and code readability.
+We think we reached our goal, considering we ended up with 91\% of the board's
+combinational functions used and a fairly readable code.
+
+As for the available logic registers, careful use of the \textbf{range} parameter
+was enough to avoid occupying too many resources: we ended up with 4\% logic
+registers used.
+
+During the development, the biggest problem was the difficulty of debugging the
+project, being used to the ease of debugging sequential languages such as C or Java.
+To overcome this obstacle, we decided to use the onboard displays to view all
+possible solutions for the selected cell. Later we found this facility so useful
+that we decided to keep it in the final build of the project.
 
 \section*{Future developments}
 
@@ -545,6 +561,8 @@ could be coded:
 
     \item Generate boards dynamically
     \item Generate and solve boards with more cells (higher N parameter)
+    \item Let the user enter a specific constraints array for a "custom" board
+    \item Solve boards with missing constraints
 
 \end{itemize}
 
