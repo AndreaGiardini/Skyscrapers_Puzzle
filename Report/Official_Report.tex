@@ -306,7 +306,7 @@ to set the correct value for a cell is to remove from the set of possible
 solutions, all the values that are incorrect. This way, when a cell has
 only a possible value, we set that value.
 
-Rules:
+\section*{Simple solvers}
 
 \begin{itemize}
 
@@ -444,7 +444,9 @@ Rules:
 
 \end{itemize}
 
-The rules that we described previously can help us to reduce the number of
+\section*{Intuitive solver}
+
+The rules that we described previously can help us reduce the number of
 possible solutions in one cell. Unfortunately, just using those rules, our
 game is still not able to resolve some obvious cases, like for example:
 
@@ -471,10 +473,58 @@ reason no number is assigned to them. We can also notice that, for each
 example, there are two possible solution and that only one of them is
 correct.
 
-The intuitive rule tries to address this problem, when the number of
-possible combinations in a row is two the algorithm tries to verify which
-one of them is correct. This rule allowed us to solve more complex
-schemas, where the intuition of the user was needed to complete the board.
+The intuitive rule tries to address this problem: when there are more than one
+possible combinations of results, the algorithm tries to verify if any of them
+is wrong. This rule allowed us to solve more complex schemas, where the intuition
+of the user would have been needed to complete the board.
+
+The algorithm we designed works in two specific cases: when only one of the
+cells preceding building number four is empty and when there are only two empty
+spaces in the line and they are both before before building number four. Let's
+start by analyzing the first case, looking at the table below for an example.
+
+\begin{center}
+  3
+  \begin{tabular}{| C{0.5cm} | C{0.5cm} | C{0.5cm} | C{0.5cm} |}
+    \hline
+    & 2 & 4 &  \tabularnewline \hline
+  \end{tabular}
+  2
+\end{center}
+
+As we can see, there is only one empty cell before the tallest building, which has
+two possible solution. In this case, our algorithm finds the empty cell and tries
+all possible values (in our case, /textbf{one} and /textbf{three}). When trying
+value /textbf{one} the constraint is satisfied, so nothing happens. When trying
+value /textbf{three} the constraint is not satisfied, so value /textbf{three} is
+removed from the feasible values. This means that only value /textbf{one} is
+feasible now, so it is added into the cell. In turn, this means that value /textbf{one}
+is not valid anymore for the fourth cell, which now must contain value /textbf{three}.
+
+Let's now analyze our second case of interest in the table below:
+
+\begin{center}
+  3
+  \begin{tabular}{| C{0.5cm} | C{0.5cm} | C{0.5cm} | C{0.5cm} |}
+    \hline
+    &  & 4 & 1 \tabularnewline \hline
+  \end{tabular}
+  2
+\end{center}
+
+Now we have two empty cells in our line, and both are located before the tallest
+building. Our algorithm now finds the two empty cells (they don't necessarily need
+to be adjacent) and tries all possible values combinations. It's worth noting that,
+since there are only two empty cells, they both have the same feasible values. Hence,
+we put the first feasible value in the first cell (in our case \textbf{two}) and
+the other one (\textbf{three}) in the second cell. The sequence we created
+satisfies our constraint, so, as in the previous case, nothing happens. Now
+we check the other value for the first cell (\textbf{three}), which implies a
+value of \textbf{two} for the second one. This particular sequence does not
+satisfy our constraint, so we set the value \textbf{three} as infeasible for
+the first cell and \textbf{two} as infeasible for the second cell. This way,
+both cells now have only one feasible value, which is added into the respective
+cell.
 
 \chapter*{Conclusion}
 
