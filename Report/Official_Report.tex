@@ -40,9 +40,9 @@ Altera FPGA DE1}
 The project aim is to write a software to run the Skyscrapers puzzle on
 a Altera DE1 board \cite{AlteraDE1Board}, allowing users to interact with
 it using a keyboard. The final result will be an interactive logic game,
-where the user can input digits in the board or ask a suggestion for the
+where the user can input digits in the board or get a suggestion for the
 next step. The game needs to recognize when the puzzle is completed and if
-the solution provided is correct and respects all the constraints.
+the solution provided is correct and satisfies all the constraints.
 
 \begin{figure}[H]
   \centering
@@ -50,23 +50,23 @@ the solution provided is correct and respects all the constraints.
   \caption{Altera DE1 FPGA Board}
 \end{figure}
 
-In the proposed game the user needs to be able to move in the game using
-the cursors of the keyboard. Entering numbers in the matrix, always using
-the keyboard, the user tries to complete the puzzle filling all the blank
-spaces with a numeric value. If the user is not able to complete the game
-it can solve the board automatically using the algorithms implemented in
+In the proposed game, the user needs to be able to move the cursor in the
+game using the arrows on the keyboard. Entering numbers in the matrix, always
+using the keyboard, the user tries to complete the puzzle filling all the
+blank spaces with a numeric value. If the user is not able to complete the
+game, the puzzle can automatically be solved by the algorithms implemented in
 the board. Once the puzzle is solved, the board should recognize the
-solution and display the winning logo to the user.
+solution and show the user that he won.
 
 \chapter*{Introduction to the puzzle}
 
-Each puzzle consists of an NxN grid with some clues along its sides. The
-goal is to place a skyscraper in each square, with a height between one
-and N, so that no two skyscrapers in a row or column have the same number
-of floors. In addition, the number of visible skyscrapers, as viewed from
-the direction of each clue, is equal to the value of the clue. Note that
-higher skyscrapers block the view of lower skyscrapers located behind
-them.
+Each puzzle consists of an NxN grid, organized as a latin square, with some
+clues along its sides. The goal is to place a skyscraper in each square,
+with a height between 1 and N, so that no two skyscrapers in the same row
+or column have the same number of floors. In addition, the number of visible
+skyscrapers, as viewed from the direction of each clue, is equal to the value
+of the clue. Note that higher skyscrapers block the view of lower skyscrapers
+located behind them.
 
 \begin{figure}[H]
   \centering
@@ -75,11 +75,11 @@ them.
 \end{figure}
 
 There are a number of intuitions that can be addressed immediately,
-filling some of the empty spaces with values, others spaces instead need
+filling some of the empty spaces with values, while other spaces need
 a combination of more constraints to identify the correct value. The game
-can be extended with a bigger matrix or to include parks ( empty spaces, so
-buildings with zero height in the matrix ). In our case we decided to
-solve the classic version of the puzzle, a 4x4 matrix with no parks.
+can be extended with a bigger matrix or to include parks (empty spaces,
+represented by buildings with zero height in the matrix). For this project, we
+decided to solve the classic version of the puzzle, a 4x4 matrix with no parks.
 
 \newpage
 
@@ -87,21 +87,21 @@ solve the classic version of the puzzle, a 4x4 matrix with no parks.
 
 The control unit is used in this project to get the inputs from the user
 and interpret them. Following that, the interpreted signal is sent to
-the Datapath or the View depending on which kind of change we want to
+the Datapath or the View, depending on which kind of change we want to
 address.
 
 As we specified previously, our intention is to let the user use
 a keyboard to play the game. In order to do this we have to read the
 serial PS2 line and map the received data with the scan codes of the
-keys that we wanted to interpret.
+keys that we want to interpret.
 
-To simplify the problem and keep the Control Unit as clean as possible
-we added a new class called \textit{Skyscrapers\_Puzzle\_Keyboard} which is
-responsible exclusively to read the data from the keyboard and map it to
+In order to simplify this task and keep the Control Unit as clean as possible,
+we added a new class called \textit{Skyscrapers\_Puzzle\_Keyboard}, which is
+responsible exclusively of reading the data from the keyboard and map them to
 scan codes. Using this class we can leave all the logic of translating
 the signals to actions to the Control Unit, as it is supposed to be.
 
-The Control Unit has the following signals:
+The Control Unit uses the following signals:
 
 \begin{center}
 \begin{minipage}{0.5\textwidth}
@@ -127,10 +127,10 @@ The Control Unit has the following signals:
 \end{center}
 
 The Control Unit reads the serial line \textit{KEYBOARDDATA} and
-interprets the scan codes received in actions, that are then sent to the
-Datapath. In order not to consider a single press as multiple (since the
-clock data is fast) we are scanning the line periodically and not
-constantly.
+translates the scan codes received to actions, that are then sent to the
+Datapath. In order to avoid reading a single keypress as multiple keypresses
+(since the data clock is faster than the PS2 clock) we are scanning the line
+periodically and not constantly.
 
 \newpage
 
@@ -138,9 +138,9 @@ constantly.
 
 The Datapath takes care of the logic of the game, it maintains in memory
 the numbers that the user added to the matrix. The user is able to add new
-numbers to the matrix from the keyboard and all its changes are registered
-inside the Datapath. Moreover, the Datapath contains all the logic to
-solve the puzzle.
+numbers to the matrix using the keyboard and all its changes are registered
+inside the Datapath. Moreover, the Datapath contains all the logic needed to
+solve the puzzle automatically.
 
 \begin{center}
 \begin{minipage}{0.5\textwidth}
@@ -168,22 +168,27 @@ solve the puzzle.
 
 The Datapath is the main component of the project since it stores the
 matrix with the values, handles the inputs received from the Controller
-and contains the algorithm to solve the puzzle.
+and contains the algorithm used to solve the puzzle.
 
-Every cell in the schema, contains initially all the possible values that
-can be assigned to that cell. Using the constraints and the input of the
-users the datapath removes possible solutions from the surrounding cells.
-Whenever a cell has only one possible solution that value is assigned to
-it and displayed on screen.
+Every cell in the schema is mapped as an array of N logic values (effectively
+mapping the game to a NxNxN matrix), each one representing the feasibility of
+a solution in a given cell. At the start of the game, all values are feasible
+in any cell.
+
+When the user inputs a number or invokes the automatic solver, no values are
+set in the matrix: instead, other values are deemed infeasible, and thus
+removed from the list of feasible values. After this, if any cell is left with
+only one feasible solution, its value is assigned to it and displayed on
+screen.
 
 \newpage
 
 \section*{View}
 
 The View is responsible for drawing on screen the elements of the Datapath
-and represent them in the best way for the user. In our case the game is
-quite simple to represent on screen but there were some challenges to be
-solved, in particular with the drawing of numbers.
+and represent them in the best way for the user. In our case, the visual
+representation of the game is quite simple, but there were some challenges
+to be solved, especially with the drawing of numbers.
 
 \begin{center}
 \begin{minipage}{0.5\textwidth}
@@ -223,9 +228,9 @@ the frames of the game before printing them on the screen. The FrameBuffer
 is a portion of memory containing a Bitmap that is used to refresh a video
 display from a memory buffer containing a complete frame of data.
 Basically what happens is that we draw the whole frame to be displayed in
-memory before actually displaying it on video. Once the frame is ready to
-be displayed and all the drawing operations are completed we refresh the
-screen putting on it the new frame that we just drawn in memory.
+memory before we display it on video. Once the frame is ready to
+be displayed and all the drawing operations are completed, we refresh the
+screen, drawing on it the new frame that we just created in memory.
 
 \newpage
 
@@ -265,50 +270,51 @@ Every state draws a different object:
 
   \item DRAW\_BOARD\_NUMBERS
 
-  Places the numbers that have been inserted inside the board.
+  Draws the numbers that have been inserted inside the board.
 
   \item FLIP\_FRAMEBUFFER
 
   This state is reached when the drawing has been completed and we are
-  ready to display it on the screen.
+  ready to display it on the screen. After this, we go back to IDLE state,
+  preparing for the creation of a new frame to display.
 \end{itemize}
 
-The most difficult part was drawing the numbers on screen since the
+The most difficult part was drawing the numbers on screen, since the
 FrameBuffer library was not giving us any possibility of drawing custom
 images but only squares. To draw the numbers we had to define every digit
-as an array of colors, representing pixel by pixel the color that has to
-be placed. Following that we had to draw a square of 1x1 pixel for each
-pixel of the number's sprite.
+as a sprite, which is an array of colors, representing pixel by pixel the
+color that has to be drawn. After that we had to draw a square of 1x1 pixel
+for each pixel of the number's sprite.
 
 \chapter*{Solving algorithm}
 
 In order to solve the puzzle we had to implement in VHDL multiple methods
-to insert solutions on the board based on the constraints of the game. In
-the following section we will analyse the rules that we are applying to
-solve the problem and how they help us to remove possible solutions from
+to remove solutions from the board based on the constraints of the game. In
+the following section we will analyze the rules that we are applying to
+solve the problem and how they help us to remove infeasible solutions from
 the board.
 
 Starting with the structure, we represented the board as
-a three-dimensional matrix. This matrix has dimension 4 (length)
+a three-dimensional matrix. This matrix has dimensions 4 (length)
 x 4 (height) x 4 (possible solutions). We must consider that, when
 a number is inserted, that solution can be removed from the corresponding
 row and column, since we cannot have the same number twice on the same
 column or row.
 
 During the analysis phase we determined that the most convenient technique
-to set the correct value for a cell is to remove, from the set of possible
-solutions, all the values that are incorrect. In this way, when a cell has
+to set the correct value for a cell is to remove from the set of possible
+solutions, all the values that are incorrect. This way, when a cell has
 only a possible value, we set that value.
 
 Rules:
 
 \begin{itemize}
 
-    \item \ul{The constraint is \textbf{one} when the first element
+    \item \ul{If the constraint is \textbf{one}, the first element
     is \textbf{four}}
 
     Since only a single skyscraper is visible from that side, it means
-    that it must be the tallest one. In this case the number \textit{four}
+    that it has to be the tallest one. In this case the number \textit{four}
     is added to the matrix in first position.
 
 \begin{center}
@@ -319,17 +325,30 @@ Rules:
   \end{tabular}
 \end{center}
 
-    \item \ul{The constraint is \textbf{two} when the second
+    \item \ul{If the constraint is \textbf{two}, the second
     element cannot be \textbf{three}}
 
-    If the constraint is two and the second element is three it is not
-    possible to match the requirements. In fact, in the best case, it will
-    always be possible to see the skyscrapers three, four and the one
-    occupying the first place.
+    If the constraint is two and the second element is three it will not
+    be possible to satisfy the constraint. In fact, if the second
+    number is set to three, there are two possible outcomes, and we can
+    see they are both invalid.
 
-    The table below shows an example of this rule, which makes evident
-    than the \textit{three} \ul{cannot} be assigned to the second
-    position:
+    In the first case, as shown in the table below, the tallest building
+    is put before building three: therefore, we can only see one building
+    and the constraint is invalid.
+    
+\begin{center}
+  2
+  \begin{tabular}{| C{0.5cm} | C{0.5cm} | C{0.5cm} | C{0.5cm} |}
+    \hline
+    4 & 3 & & \tabularnewline \hline
+  \end{tabular}
+\end{center}
+
+    In the second case, as shown in the table below, the tallest building
+    is put after building three: therefore, we can see three buildings
+    (the first one which is necessarily shorter than three, building
+    number three and building number four) and the constraint is invalid.
 
 \begin{center}
   2
@@ -339,11 +358,11 @@ Rules:
   \end{tabular}
 \end{center}
 
-    \item \ul{The constraint is \textbf{four} when row/column is
-    ordered}
+    \item \ul{If the constraint is \textbf{four}, the line contains
+    all numbers in ascending order}
 
-    Since the user is able to see all the skyscrapers it means that they
-    must be ordered on the line based on their height.
+    Since the user is able to see all the skyscrapers, they can only be
+    be put in ascending order.
 
 \begin{center}
   4
@@ -353,45 +372,75 @@ Rules:
   \end{tabular}
 \end{center}
 
-    \item \ul{The opposite constraints are \textbf{two} and
-    \textbf{three} when the \textbf{four} is in the second position
-    starting from the lowest constraint}
+    \item \ul{Any constraint indicates the first valid position for
+    number \textbf{four} in the line}
 
-    The skyscraper with height four is always seen from both sides since
-    it is the tallest one. This rule can be summarized with: if the
-    constrain it X then 4 is in the X position or later.
+    Since the constraints tell us how many buildings we can see, the
+    tallest building must be at least \textbf{constraint-1} positions
+    away from the beginning of the line. For instance, if our constraint
+    is \textbf{three}, the building number \textbf{four} must be at
+    least in position \textbf{three}, to leave space for two more buildings
+    to be seen before it.
 
-    If the constraints are two and three, we can define precisely the
-    position of the tallest skyscraper, as we can see from the tables
-    below.
+    This rule leads us to a particular case, which can be used to guess
+    the exact position of building \textbf{four}:
 
-\begin{center}
-  2
-  \begin{tabular}{| C{0.5cm} | C{0.5cm} | C{0.5cm} | C{0.5cm} |}
-    \hline
-    & 4 &  &  \tabularnewline \hline
-  \end{tabular}
-  3
-\end{center}
+    \begin{itemize} 
+      \item \ul{If the sum of two opposite constraints is \textbf{five},
+      the number \textbf{four} is in the position specified by the leftmost
+      constraint}
 
-\begin{center}
-  3
-  \begin{tabular}{| C{0.5cm} | C{0.5cm} | C{0.5cm} | C{0.5cm} |}
-    \hline
-    &  & 4 &  \tabularnewline \hline
-  \end{tabular}
-  2
-\end{center}
+      It's easier to understand this rule with an example. As we can see, if
+      we apply the previous rule to the schema in the table below, the leftmost
+      constraint tells us that building number \textbf{four} can be put in the
+      second, third or fourth space. If we apply the rule again, this time
+      using the rightmost constraint, we can deduce that building number
+      \textbf{four} can only be put in the third and fourth space from the
+      right (which are the first and second space from the left). Combining
+      these two deductions, we find that the only space which can contain
+      number \textbf{four} is the second (as specified by the leftmost
+      constraint, which is \textbf{two}).
 
-    It is possible to specify a more general rule, from which we deducted
-    this one, that says: the constraint is X when \textbf{four} is in
-    position X or more. This means that if the constraint is \textbf{two}
-    then the number \textbf{four} can be in the second, third or fourth
-    position, but not first. If the constraint is \textbf{three} then the
-    number \textbf{four} can be in the third or in the fourth position.
-    The combination of these constraints on the opposite side of the same
-    row gives us a precise position for the number \textbf{four} in the
-    line.
+      \begin{center}
+        2
+        \begin{tabular}{| C{0.5cm} | C{0.5cm} | C{0.5cm} | C{0.5cm} |}
+          \hline
+          & 4 &  &  \tabularnewline \hline
+        \end{tabular}
+        3
+      \end{center}
+
+      Of course, the same reasoning applies to all other cases in which the sum
+      of the constraints is \textbf{five}. Here are some more examples:
+
+      \begin{center}
+        3
+        \begin{tabular}{| C{0.5cm} | C{0.5cm} | C{0.5cm} | C{0.5cm} |}
+          \hline
+          &  & 4 &  \tabularnewline \hline
+        \end{tabular}
+        2
+      \end{center}
+
+      \begin{center}
+        1
+        \begin{tabular}{| C{0.5cm} | C{0.5cm} | C{0.5cm} | C{0.5cm} |}
+          \hline
+          4 & & &  \tabularnewline \hline
+        \end{tabular}
+        4
+      \end{center}
+      
+      \begin{center}
+        4
+        \begin{tabular}{| C{0.5cm} | C{0.5cm} | C{0.5cm} | C{0.5cm} |}
+          \hline
+          & & & 4  \tabularnewline \hline
+        \end{tabular}
+        1
+      \end{center}
+
+    \end{itemize}  
 
 \end{itemize}
 
@@ -429,22 +478,23 @@ schemas, where the intuition of the user was needed to complete the board.
 
 \chapter*{Conclusion}
 
-The game presented is complete and functional in all its aspects. The
+The game presented is complete and functional in all of its aspects. The
 algorithm studied to solve the game introduced a noticeable complexity
 from the logic point of view. Due to this we reached the logic limits of
-the board: the current project fits on the board just after a heavy
-optimization.
+the board: the current project barely fits on it, but a heavy optimization
+was needed.
 
 \section*{Future developments}
 
 Currently the limits of the board have been reached so the space for
-possible developments is quite small. However, with some hard optimization
-of the code or with a board with more memory, the following improvements
+possible developments is quite small. However, with a heavier optimization
+of the code or using a board with more resources, the following improvements
 could be coded:
 
 \begin{itemize}
 
     \item Generate boards dynamically
+    \item Generate and solve boards with more cells (higher N parameter)
 
 \end{itemize}
 
