@@ -40,9 +40,9 @@ Altera FPGA DE1}
 The project aim is to write a software to run the Skyscrapers puzzle on
 a Altera DE1 board \cite{AlteraDE1Board}, allowing users to interact with
 it using a keyboard. The final result will be an interactive logic game,
-where the user can input digits in the board or get a suggestion for the
-next step. The game needs to recognize when the puzzle is completed and if
-the solution provided is correct and satisfies all the constraints.
+where the user can input digits in the game or solve it automatically. The
+game needs to recognize when the puzzle is completed and if the solution
+provided is correct and satisfies all the constraints.
 
 \begin{figure}[H]
   \centering
@@ -54,8 +54,8 @@ In the proposed game, the user needs to be able to move the cursor in the
 game using the arrows on the keyboard. Entering numbers in the matrix, always
 using the keyboard, the user tries to complete the puzzle filling all the
 blank spaces with a numeric value. If the user is not able to complete the
-game, the puzzle can automatically be solved by the algorithms implemented in
-the board. Once the puzzle is solved, the board should recognize the
+game, the puzzle can automatically be solved by the algorithm implemented
+in the board. Once the puzzle is solved, the board should recognize the
 solution and show the user that he won.
 
 \chapter*{Introduction to the puzzle}
@@ -86,9 +86,8 @@ decided to solve the classic version of the puzzle, a 4x4 matrix with no parks.
 \section*{Control Unit}
 
 The control unit is used in this project to get the inputs from the user
-and interpret them. Following that, the interpreted signal is sent to
-the Datapath or the View, depending on which kind of change we want to
-address.
+and interpret them. Following that, the interpreted signals are sent to
+the Datapath.
 
 As we specified previously, our intention is to let the user use
 a keyboard to play the game. In order to do this we have to read the
@@ -128,8 +127,8 @@ The Control Unit uses the following signals:
 
 The Control Unit reads the serial line \textit{KEYBOARDDATA} and
 translates the scan codes received to actions, that are then sent to the
-Datapath. In order to avoid reading a single keypress as multiple keypresses
-(since the data clock is faster than the PS2 clock) we are scanning the line
+Datapath. In order to avoid reading a single keypress as multiple
+keypresses ( since the data clock is too fast ) we are scanning the line
 periodically and not constantly.
 
 \newpage
@@ -283,8 +282,9 @@ The most difficult part was drawing the numbers on screen, since the
 FrameBuffer library was not giving us any possibility of drawing custom
 images but only squares. To draw the numbers we had to define every digit
 as a sprite, which is an array of colors, representing pixel by pixel the
-color that has to be drawn. After that we had to draw a square of 1x1 pixel
-for each pixel of the number's sprite.
+color that has to be drawn, considering black as a background color and
+white as foreground. After that we had to draw a square of 1x1 pixel for
+each pixel of the number's sprite.
 
 \chapter*{Solving algorithm}
 
