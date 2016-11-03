@@ -38,11 +38,11 @@ Altera FPGA DE1}
 \chapter*{Aim of the project}
 
 The project aim is to write a software to run the Skyscrapers puzzle on
-a Altera DE1 board \cite{AlteraDE1Board}, allowing users to interact with
-it using a keyboard. The final result will be an interactive logic game,
-where the user can input digits in the game or solve it automatically. The
-game needs to recognize when the puzzle is completed and if the solution
-provided is correct and satisfies all the constraints.
+a Altera DE1 board, allowing users to interact with it using the keyboard.
+The final result will be an interactive logic puzzle, where the user can
+input digits in the game or solve it automatically. The game needs to
+recognize when the puzzle is completed and if the solution provided is
+correct and satisfies all the constraints.
 
 \begin{figure}[H]
   \centering
@@ -51,12 +51,12 @@ provided is correct and satisfies all the constraints.
 \end{figure}
 
 In the proposed game, the user needs to be able to move the cursor in the
-game using the arrows on the keyboard. Entering numbers in the matrix, always
-using the keyboard, the user tries to complete the puzzle filling all the
-blank spaces with a numeric value. If the user is not able to complete the
-game, the puzzle can automatically be solved by the algorithm implemented
-in the board. Once the puzzle is solved, the board should recognize the
-solution and show the user that he won.
+matrix using the arrows on the keyboard. Entering numbers in the matrix,
+always using the keyboard, the user tries to complete the puzzle filling
+all the blank spaces with a numeric value. If the user is not able to
+complete the game, the puzzle can automatically be solved by the
+algorithm implemented in the board. Once the puzzle is solved, the board
+should recognize the solution and show the user that he won.
 
 \chapter*{Introduction to the puzzle}
 
@@ -95,10 +95,11 @@ serial PS2 line and map the received data with the scan codes of the
 keys that we want to interpret.
 
 In order to simplify this task and keep the Control Unit as clean as possible,
-we added a new class called \textit{Skyscrapers\_Puzzle\_Keyboard}, which is
-responsible exclusively of reading the data from the keyboard and map them to
-scan codes. Using this class we can leave all the logic of translating
-the signals to actions to the Control Unit, as it is supposed to be.
+we added a new class called \textit{Skyscrapers\_Puzzle\_Keyboard}, which
+is responsible exclusively of reading the data from the keyboard and mapit
+to the corresponding scan codes. Using this class we can leave all the
+logic of translating the signals to actions to the Control Unit, as it is
+supposed to be.
 
 The Control Unit uses the following signals:
 
@@ -125,7 +126,7 @@ The Control Unit uses the following signals:
 \end{minipage}
 \end{center}
 
-The Control Unit reads the serial line \textit{KEYBOARDDATA} and
+The Control Unit reads the serial line \textit{keyboardData} and
 translates the scan codes received to actions, that are then sent to the
 Datapath. In order to avoid reading a single keypress as multiple
 keypresses ( since the data clock is too fast ) we are scanning the line
@@ -170,15 +171,15 @@ matrix with the values, handles the inputs received from the Controller
 and contains the algorithm used to solve the puzzle.
 
 Every cell in the schema is mapped as an array of N logic values (effectively
-mapping the game to a NxNxN matrix), each one representing the feasibility of
-a solution in a given cell. At the start of the game, all values are feasible
-in any cell.
+mapping the game to a NxNxN matrix), each one representing the feasibility
+of a solution in a given cell. At the beginning of the game, all values
+are feasible in any cell.
 
 When the user inputs a number or invokes the automatic solver, no values are
 set in the matrix: instead, other values are deemed infeasible, and thus
-removed from the list of feasible values. After this, if any cell is left with
-only one feasible solution, its value is assigned to it and displayed on
-screen.
+removed from the list of feasible values. After this, if a cell is left
+with only one feasible solution, its value is assigned to it and displayed
+on screen.
 
 \newpage
 
@@ -292,9 +293,9 @@ In order to solve the puzzle we had to implement in VHDL multiple methods
 to remove solutions from the board based on the constraints of the game. In
 the following section we will analyze the rules that we are applying to
 solve the problem and how they help us to remove infeasible solutions from
-the board.
+the puzzle.
 
-Starting with the structure, we represented the board as
+Starting with the structure, we represented the puzzle as
 a three-dimensional matrix. This matrix has dimensions 4 (length)
 x 4 (height) x 4 (possible solutions). We must consider that, when
 a number is inserted, that solution can be removed from the corresponding
@@ -302,9 +303,9 @@ row and column, since we cannot have the same number twice on the same
 column or row.
 
 During the analysis phase we determined that the most convenient technique
-to set the correct value for a cell is to remove from the set of possible
-solutions, all the values that are incorrect. This way, when a cell has
-only a possible value, we set that value.
+to set the correct value for a cell is to remove all the incorrect values
+from the set of possible solutions. This way, when a cell has only
+a possible value, we set that value.
 
 \section*{Simple solvers}
 
@@ -336,7 +337,7 @@ only a possible value, we set that value.
     In the first case, as shown in the table below, the tallest building
     is put before building three: therefore, we can only see one building
     and the constraint is invalid.
-    
+
 \begin{center}
   2
   \begin{tabular}{| C{0.5cm} | C{0.5cm} | C{0.5cm} | C{0.5cm} |}
@@ -376,16 +377,16 @@ only a possible value, we set that value.
     number \textbf{four} in the line}
 
     Since the constraints tell us how many buildings we can see, the
-    tallest building must be at least \textbf{constraint-1} positions
-    away from the beginning of the line. For instance, if our constraint
-    is \textbf{three}, the building number \textbf{four} must be at
-    least in position \textbf{three}, to leave space for two more buildings
-    to be seen before it.
+    tallest building must be at least \textbf{constraint positions} away
+    from the beginning of the line. For instance, if our constraint is
+    \textbf{three}, the building number \textbf{four} must be at least in
+    position \textbf{three}, to leave space for two more buildings to be
+    seen before it.
 
     This rule leads us to a particular case, which can be used to guess
     the exact position of building \textbf{four}:
 
-    \begin{itemize} 
+    \begin{itemize}
       \item \ul{If the sum of two opposite constraints is \textbf{five},
       the number \textbf{four} is in the position specified by the leftmost
       constraint}
@@ -430,7 +431,7 @@ only a possible value, we set that value.
         \end{tabular}
         4
       \end{center}
-      
+
       \begin{center}
         4
         \begin{tabular}{| C{0.5cm} | C{0.5cm} | C{0.5cm} | C{0.5cm} |}
@@ -440,7 +441,7 @@ only a possible value, we set that value.
         1
       \end{center}
 
-    \end{itemize}  
+    \end{itemize}
 
 \end{itemize}
 
@@ -479,9 +480,12 @@ is wrong. This rule allowed us to solve more complex schemas, where the intuitio
 of the user would have been needed to complete the board.
 
 The algorithm we designed works in two specific cases: when only one of the
-cells preceding building number four is empty and when there are only two empty
-spaces in the line and they are both before before building number four. Let's
-start by analyzing the first case, looking at the table below for an example.
+cells preceding building number four is empty and when there are only two
+empty spaces in the line and they are both before before building number
+four. \\
+
+Let's start by analyzing the first case, looking at the table below for an
+example.
 
 \begin{center}
   3
@@ -493,13 +497,17 @@ start by analyzing the first case, looking at the table below for an example.
 \end{center}
 
 As we can see, there is only one empty cell before the tallest building, which has
-two possible solution. In this case, our algorithm finds the empty cell and tries
-all possible values (in our case, /textbf{one} and /textbf{three}). When trying
-value /textbf{one} the constraint is satisfied, so nothing happens. When trying
-value /textbf{three} the constraint is not satisfied, so value /textbf{three} is
-removed from the feasible values. This means that only value /textbf{one} is
-feasible now, so it is added into the cell. In turn, this means that value /textbf{one}
-is not valid anymore for the fourth cell, which now must contain value /textbf{three}.
+two possible solution. In this case, our algorithm finds the empty cell
+and tries all possible values (in our case, \textbf{one} and
+\textbf{three}). When trying value \textbf{one} the constraint is
+satisfied, so nothing happens. When trying value \textbf{three} the
+constraint is not satisfied, so value \textbf{three} is removed from the
+feasible values. This means that only value \textbf{one} is feasible now,
+so it is added into the cell. In turn, this means that value \textbf{one}
+is not valid anymore for the fourth cell, which now must contain value
+\textbf{three}.
+
+\newpage
 
 Let's now analyze our second case of interest in the table below:
 
@@ -531,7 +539,7 @@ cell.
 The game presented is complete and functional in all of its aspects. The
 algorithm studied to solve the game introduced a noticeable complexity
 from the logic point of view. Due to this we reached the logic limits of
-the board: the current project barely fits on it, but a heavy optimization
+the board: the current project barely fits on it, an heavy optimization
 was needed.
 
 Unsurprisingly, the hardest part to fit was the solver logic; some more
@@ -559,18 +567,11 @@ could be coded:
 
 \begin{itemize}
 
-    \item Generate boards dynamically
-    \item Generate and solve boards with more cells (higher N parameter)
-    \item Let the user enter a specific constraints array for a "custom" board
-    \item Solve boards with missing constraints
+    \item Generate puzzles dynamically
+    \item Generate and solve puzzles with more cells (higher N parameter)
+    \item Let the user enter a specific constraints array for a "custom" puzzle
+    \item Solve puzzles with missing constraints
 
 \end{itemize}
-
-\renewcommand{\bibname}{References}
-\begin{thebibliography}{100}
-
-\bibitem{AlteraDE1Board} http://de1.terasic.com/
-
-\end{thebibliography}
 
 \end{document}
