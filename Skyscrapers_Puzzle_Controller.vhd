@@ -38,11 +38,6 @@ architecture behavioral of Skyscrapers_Puzzle_Controller is
 	constant key2		: std_logic_vector(7 downto 0):=X"1E";
 	constant key3		: std_logic_vector(7 downto 0):=X"26";
 	constant key4		: std_logic_vector(7 downto 0):=X"25";
-	constant key5		: std_logic_vector(7 downto 0):=X"2E";
-	constant key6		: std_logic_vector(7 downto 0):=X"36";
-	constant key7		: std_logic_vector(7 downto 0):=X"3D";
-	constant key8		: std_logic_vector(7 downto 0):=X"3E";
-	constant key9		: std_logic_vector(7 downto 0):=X"46";
 	constant keyENTER	: std_logic_vector(7 downto 0):=X"5A";
 	constant keySPACE	: std_logic_vector(7 downto 0):=X"29";
 begin
@@ -75,11 +70,6 @@ begin
 				when KEY2 	  => NUMBER <= "0010";
 				when KEY3     => NUMBER <= "0011";
 				when KEY4     => NUMBER <= "0100";
-				when KEY5     => NUMBER <= "0101";
-				when KEY6     => NUMBER <= "0110";
-				when KEY7 	  => NUMBER <= "0111";
-				when KEY8     => NUMBER <= "1000";
-				when KEY9     => NUMBER <= "1001";
 				when KEYENTER => SOLVE  <= '1';
 				when KEYSPACE => CLEAN	<= '1';
 				when others => -- do nothing
