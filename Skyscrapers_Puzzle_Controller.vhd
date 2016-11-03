@@ -21,7 +21,7 @@ entity Skyscrapers_Puzzle_Controller is
 		MOVE_UP			: out std_logic;
 		NUMBER			: out std_logic_vector (3 downto 0);
 		SOLVE				: out std_logic;
-		CLEAN				: out std_logic;
+		CLEAN				: out std_logic
 	);
 end entity;
 

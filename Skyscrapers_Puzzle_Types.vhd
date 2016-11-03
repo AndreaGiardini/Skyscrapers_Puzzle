@@ -4,7 +4,7 @@ use ieee.std_logic_1164.all;
 
 package Skyscrapers_Puzzle_Types is
 	type SOLUTIONS_TYPE		is array(0 to 3, 0 to 3, 0 to 3) of std_logic;	-- Possible solutions
-	type ROW_TYPE				is array(0 to 3) of integer range 0 to 4;
+	type LINE_TYPE				is array(0 to 3) of integer range 0 to 4;
 --	type CELL_SOLUTIONS		is array(integer range<>) of integer;
 --	type SOLUTIONS_TYPE		is array(3 downto 0, 3 downto 0) of CELL_SOLUTIONS;
 	type MATRIX_TYPE			is array(0 to 3, 0 to 3) of integer range 0 to 4; -- (rows, columns)

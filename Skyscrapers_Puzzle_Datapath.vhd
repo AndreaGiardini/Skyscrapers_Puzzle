@@ -26,50 +26,14 @@ entity Skyscrapers_Puzzle_Datapath is
 end entity;
 
 architecture behavior of Skyscrapers_Puzzle_Datapath is
-	-- TEST FROM LEFT
-	--signal constraint_array		: CONSTRAINTS_TYPE := ((1, 3, 3, 2), (1, 4, 2, 3), (2, 1, 2, 2), (3, 2, 1, 3));
-	
-	-- TEST FROM RIGHT
-	--signal constraint_array		: CONSTRAINTS_TYPE := ((3, 2, 1, 3), (3, 2, 4, 1), (2, 2, 1, 2), (1, 3, 3, 2));
-	
-	-- TEST FROM TOP
-	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 1, 2, 2), (2, 3, 3, 1), (3, 1, 2, 3), (1, 4, 2, 3));
-	
-	-- TEST FROM BOTTOM
-	--signal constraint_array		: CONSTRAINTS_TYPE := ((3, 2, 4, 1), (3, 2, 1, 3), (1, 3, 3, 2), (2, 2, 1, 2));
-	
-	-- TEST 2 FREE FROM LEFT
-	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 3, 1, 3), (2, 1, 3, 2), (2, 3, 1, 2), (2, 1, 4, 2));
-	
-	-- TEST 2 FREE FROM RIGHT
-	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 1, 4, 2), (2, 3, 1, 2), (2, 1, 3, 2), (2, 3, 1, 3));
-	
-	-- TEST 2 FREE FROM TOP
-	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 3, 1, 2), (3, 1, 3, 2), (2, 4, 1, 2), (2, 1, 3, 2));
-	
-	-- TEST 2 FREE FROM BOTTOM
-	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 1, 3, 2), (2, 4, 1, 2), (3, 1, 3, 2), (2, 3, 1, 2));
-	
-	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 1, 3, 2), (2, 1, 4, 2), (2, 3, 1, 3), (2, 3, 1, 2));
-	--signal constraint_array		: CONSTRAINTS_TYPE := ((1, 2, 3, 3), (1, 2, 2, 3), (3, 2, 2, 1), (3, 3, 2, 1));
-	
-	
-	--signal constraint_array		: CONSTRAINTS_TYPE := ((2, 1, 3, 2), (2, 4, 1, 2), (3, 1, 3, 2), (2, 3, 1, 2));
- 	
  	-- Sample puzzles
  	constant schemas				: SCHEMAS_TYPE := (
  		((3, 1, 2, 4), (2, 2, 1, 3), (3, 2, 2, 1), (2, 2, 2, 1)),	-- OK
  		((4, 2, 2, 1), (4, 2, 2, 1), (1, 2, 3, 3), (1, 2, 3, 3)),   -- OK
- 		--((1, 2, 2, 2), (1, 2, 3, 4), (2, 2, 2, 1), (4, 3, 2, 1)),	-- OK
  		((2, 2, 1, 3), (3, 1, 2, 4), (2, 2, 2, 1), (3, 2, 2, 1)),	-- OK
- 		--((2, 1, 2, 3), (2, 2, 4, 1), (2, 2, 1, 4), (1, 2, 3, 2)), -- OK
- 		--((3, 2, 1, 2), (3, 2, 1, 3), (2, 3, 3, 1), (2, 2, 3, 1)),	-- Does not set all number (too difficult)
- 		--((2, 3, 2, 1), (4, 1, 2, 2), (1, 3, 2, 3), (2, 1, 2, 3)),	-- OK
  		((4, 3, 1, 2), (3, 3, 2, 1), (2, 1, 3, 3), (1, 2, 2, 2)),	-- OK
  		((2, 2, 3, 1), (3, 1, 2, 2), (1, 3, 2, 2), (3, 2, 1, 2))		-- OK
  	);
-	--signal constraint_array		: CONSTRAINTS_TYPE; --:= (others => (others => 0));
-	
 	
 	signal matrix_array			: MATRIX_TYPE := ((others=> (others=> 0)));
 	signal solutions_array		: SOLUTIONS_TYPE := ((others => (others => (others => '1'))));
@@ -77,6 +41,7 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	signal num_rows				: integer range 0 to 4 := 4;
 	signal win						: std_logic := '0';
 	
+	-- Returns the number of possible values in a given cell
 	function possible_values (
 		row		: integer range 0 to 3;
 		column	: integer range 0 to 3
@@ -91,26 +56,7 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 		return total;
 	end;
 	
-	procedure remove_solution_from_row (
-		row		: integer range 0 to 3;
-		number	: integer range 0 to 3
-	) is
-	begin
-		for c in 0 to 3 loop
-			solutions_array(row, c, number-1) <= '0';
-		end loop;
-	end;
-
-	procedure remove_solution_from_column (
-		column	: integer range 0 to 3;
-		number	: integer range 0 to 3
-	) is
-	begin
-		for r in 0 to 3 loop
-			solutions_array(r, column, number-1) <= '0';
-		end loop;
-	end;
-
+	-- Adds a possible solution to all cells in a given row
 	procedure add_solution_to_row (
 		row		: integer range 0 to 3;
 		number	: integer range 0 to 4
@@ -121,6 +67,7 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 		end loop;
 	end;
 
+	-- Adds a possible solution to all cells in a given column
 	procedure add_solution_to_column (
 		column	: integer range 0 to 3;
 		number	: integer range 0 to 4
@@ -131,6 +78,7 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 		end loop;
 	end;
 
+	-- Removes a possible solution from a given cell
 	procedure remove_solution_from_cell (
 		row		: integer range 0 to 3;
 		column	: integer range 0 to 3;
@@ -142,6 +90,8 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 		end if;
 	end;
 	
+	-- Inserts a value in a given cell (removing all other 
+	-- possible values so that only one is left)
 	procedure insert_value (
 		row		: integer range 0 to 3;
 		column	: integer range 0 to 3;
@@ -149,28 +99,30 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 	) is
 	begin
 		if (number /= 0) then
+			-- Removes number from the column
 			for c in 0 to 3 loop
 				if (c /= column) then
 					solutions_array(row, c, number-1) <= '0';
 				end if;
 			end loop;
 			
+			-- Removes number from the row
 			for r in 0 to 3 loop
 				if (r /= row) then
 					solutions_array(r, column, number-1) <= '0';
 				end if;
 			end loop;
 			
+			-- Removes other numbers from the cell
 			for n in 0 to 3 loop
 				if (n = number - 1) then
 					solutions_array(row, column, n) <= '1';
 				else
 					solutions_array(row, column, n) <= '0';
 				end if;
-			end loop;
-			
+			end loop;	
 			matrix_array(row, column) <= number;
-		else
+		else -- Resets the cell
 			add_solution_to_row(row, matrix_array(row, column));
 			add_solution_to_column(column, matrix_array(row, column));
 			matrix_array(row, column) <= number;
@@ -179,9 +131,10 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 		SOLUTIONS <= solutions_array;
 	end;
 	
+	-- Checks if a specific constraint is satisfied
 	function check_constraint (
 		constraint	: integer range 1 to 4;
-		values		: ROW_TYPE
+		values		: LINE_TYPE
 	) return std_logic is
 	variable max	: integer range 0 to 4 := 0;
 	variable top	: integer range 0 to 4 := 0;
@@ -202,8 +155,9 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 		end if;
 	end;
 	
+	-- Counts empty cells in a line before the highest building
 	function count_empty_cells_before_max (
-		values		: ROW_TYPE
+		values		: LINE_TYPE
 	) return integer is
 	variable count	: integer range 0 to 4 := 0;
 	begin
@@ -217,8 +171,9 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 		return count;
 	end;
 	
+	-- Counts empty cells in a line
 	function count_empty_cells (
-		values		: ROW_TYPE
+		values		: LINE_TYPE
 	) return integer is
 	variable count	: integer range 0 to 4 := 0;
 	begin
@@ -251,7 +206,7 @@ begin
 		variable innerTop		: integer range 0 to 4 := 0;
 		variable checkRes		: std_logic := '0';
 		variable added_value	: std_logic := '0';
-		variable	tmpRow		: ROW_TYPE := (others => 0);
+		variable	tmpLine		: LINE_TYPE := (others => 0);
 		variable schemaNumber: integer range 0 to 9 := 0;
 	begin
  			
@@ -270,8 +225,6 @@ begin
  			else
  				schemaNumber := schemaNumber + 1;
  			end if;
-			--CONSTRAINTS <= schemas(schemaNumber);
-			--schemaNumber := 3;
 		elsif (rising_edge(CLOCK)) then
 			CURSOR_POS <= cursor_position;
 			
@@ -307,7 +260,7 @@ begin
 			if (SOLVE = '1') then
 				added_value := '0';
 			
-				-- Rule: constraint = 4
+				-- Rule: If the constraint is four, the line contains all numbers in ascending order
 				for r in 0 to 3 loop
 					if (schemas(schemaNumber)(0, r) = 4 AND matrix_array(0, r) = 0) then
 						insert_value(0, r, 1);
@@ -326,7 +279,6 @@ begin
 						exit;
 					end if;
 				end loop;
-				
 				if (added_value = '0') then
 					for c in 0 to 3 loop
 						if (schemas(schemaNumber)(1, c) = 4 AND matrix_array(c, 0) = 0) then
@@ -348,7 +300,7 @@ begin
 					end loop;
 				end if;
 			
-				-- Rule: constraint = 1
+				-- Rule: If the constraint is one, the first element is four
 				if (added_value = '0') then
 					for r in 0 to 3 loop
 						if (schemas(schemaNumber)(0, r) = 1 AND matrix_array(0, r) = 0) then
@@ -378,10 +330,9 @@ begin
 					end loop;
 				end if;
 				
-				-- Rule: constraint = 2
+				-- Loops on all rows to remove unfeasible values
 				for r in 0 to 3 loop
-				
-					-- Rule: constraint = 2
+					-- Rule: If the constraint is two, the second element cannot be three
 					if (schemas(schemaNumber)(0, r) = 2) then
 						remove_solution_from_cell(1, r, 3);
 					end if;
@@ -389,10 +340,8 @@ begin
 						remove_solution_from_cell(2, r, 3);
 					end if;
 					
-					-- Rule: constraint = first valid position for 4
-					-- schemas(schemaNumber)(0,r)
+					-- Rule: Any constraint indicates the first valid position for number four in the line
 					if (schemas(schemaNumber)(0,r) > 1) then
-						--for c in 0 to schemas(schemaNumber)(0,r)-2 loop
 						for c in 0 to 3 loop
  							if (c > schemas(schemaNumber)(0, r)-2) then
  								exit;
@@ -400,9 +349,7 @@ begin
 							remove_solution_from_cell(c, r, 4);
 						end loop;
 					end if;
-					-- schemas(schemaNumber)(3,r)
 					if (schemas(schemaNumber)(3,r) > 1) then
-						--for c in 3 to 5-schemas(schemaNumber)(3,r) loop
 						for c in 3 downto 0 loop
  							if (c < 5-schemas(schemaNumber)(3,r)) then
  								exit;
@@ -411,9 +358,10 @@ begin
 						end loop;
 					end if;
 				end loop;
-				for c in 0 to 3 loop
 				
-					-- Rule: constraint = 2
+				-- Loops on all columns to remove unfeasible values
+				for c in 0 to 3 loop
+					-- Rule: If the constraint is two, the second element cannot be three
 					if (schemas(schemaNumber)(1, c) = 2) then
 						remove_solution_from_cell(c, 1, 3);
 					end if;
@@ -421,10 +369,8 @@ begin
 						remove_solution_from_cell(c, 2, 3);
 					end if;
 					
-					-- Rule: constraint = first valid position for 4
-					-- schemas(schemaNumber)(1,c)
+					-- Rule: Any constraint indicates the first valid position for number four in the line
 					if (schemas(schemaNumber)(1,c) > 1) then
-						--for r in 0 to schemas(schemaNumber)(1,c)-2 loop
 						for r in 0 to 3 loop
  							if (r > schemas(schemaNumber)(1,c) - 2) then
  								exit;
@@ -432,9 +378,7 @@ begin
 							remove_solution_from_cell(c, r, 4);
 						end loop;
 					end if;
-					-- schemas(schemaNumber)(2,c)
 					if (schemas(schemaNumber)(2,c) > 1) then
-						--for r in 3 to 5-schemas(schemaNumber)(2,c) loop
 						for r in 3 downto 0 loop
 							if (r < 5-schemas(schemaNumber)(2,c)) then
  								exit;
@@ -444,7 +388,7 @@ begin
 					end if;
 				end loop;
 				
-				-- Rule: check only possible position for value
+				-- Rule: Check if there is only one possible position for any value
 				for r in 0 to 3 loop
 					for n in 0 to 3 loop
 						position := 0;
@@ -491,28 +435,28 @@ begin
 				-- ROWS
 				for r in 0 to 3 loop
 					-- FROM LEFT
-					tmpRow := (matrix_array(0, r), matrix_array(1, r), matrix_array(2, r), matrix_array(3, r));
-					if ( count_empty_cells_before_max(tmpRow) = 1 ) then	-- Number of empty cells
+					tmpLine := (matrix_array(0, r), matrix_array(1, r), matrix_array(2, r), matrix_array(3, r));
+					if ( count_empty_cells_before_max(tmpLine) = 1 ) then	-- Number of empty cells
 						zeroindex := -1;
 						for c in 0 to 3 loop	-- Finding empty cell
-							if (tmpRow(c) = 0) then
+							if (tmpLine(c) = 0) then
 								zeroindex := c;
 								exit;
 							end if;
 						end loop;
 						for n in 0 to 3 loop
 							if (solutions_array(zeroindex, r, n) = '1') then
-								tmpRow(zeroindex) := n+1;
-								if (check_constraint(schemas(schemaNumber)(0, r), tmpRow) = '0') then
+								tmpLine(zeroindex) := n+1;
+								if (check_constraint(schemas(schemaNumber)(0, r), tmpLine) = '0') then
 									remove_solution_from_cell(zeroindex, r, n+1);
 								end if;
 							end if;
 						end loop;
-					elsif ( count_empty_cells_before_max(tmpRow) = 2 AND count_empty_cells(tmpRow) = 2 ) then	-- Number of empty cells
+					elsif ( count_empty_cells_before_max(tmpLine) = 2 AND count_empty_cells(tmpLine) = 2 ) then	-- Number of empty cells
 						zeroindex := -1;
 						zeroindex1 := -1;
 						for c in 0 to 3 loop -- Finding empty cell
-							if ( tmpRow(c) = 0 ) then
+							if ( tmpLine(c) = 0 ) then
 								if ( zeroindex < 0 ) then
 									zeroindex := c;
 								else
@@ -523,11 +467,11 @@ begin
 						end loop;
 						for n in 0 to 3 loop
 							if (solutions_array(zeroindex, r, n) = '1') then
-								tmpRow(zeroindex) := n+1;
+								tmpLine(zeroindex) := n+1;
 								for n2 in 0 to 3 loop
 									if (solutions_array(zeroindex1, r, n2) = '1' AND n2 /= n) then
-										tmpRow(zeroindex1) := n2+1;
-										if (check_constraint(schemas(schemaNumber)(0, r), tmpRow) = '0') then
+										tmpLine(zeroindex1) := n2+1;
+										if (check_constraint(schemas(schemaNumber)(0, r), tmpLine) = '0') then
 											remove_solution_from_cell(zeroindex, r, n+1);
 											remove_solution_from_cell(zeroindex1, r, n2+1);
 										end if;
@@ -537,28 +481,28 @@ begin
 						end loop;
 					end if;
 					-- FROM RIGHT
-					tmpRow := (matrix_array(3, r), matrix_array(2, r), matrix_array(1, r), matrix_array(0, r));
-					if ( count_empty_cells_before_max(tmpRow) = 1 ) then	-- Number of empty cells
+					tmpLine := (matrix_array(3, r), matrix_array(2, r), matrix_array(1, r), matrix_array(0, r));
+					if ( count_empty_cells_before_max(tmpLine) = 1 ) then	-- Number of empty cells
 						zeroindex := -1;
 						for c in 0 to 3 loop	-- Finding empty cell
-							if ( tmpRow(c) = 0) then
+							if ( tmpLine(c) = 0) then
 								zeroindex := c;
 								exit;
 							end if;
 						end loop;
 						for n in 0 to 3 loop
 							if (solutions_array(3-zeroindex, r, n) = '1') then
-								tmpRow(zeroindex) := n+1;
-								if (check_constraint(schemas(schemaNumber)(3, r), tmpRow) = '0') then
+								tmpLine(zeroindex) := n+1;
+								if (check_constraint(schemas(schemaNumber)(3, r), tmpLine) = '0') then
 									remove_solution_from_cell(3-zeroindex, r, n+1);
 								end if;
 							end if;
 						end loop;
-					elsif ( count_empty_cells_before_max(tmpRow) = 2 AND count_empty_cells(tmpRow) = 2 ) then	-- Number of empty cells
+					elsif ( count_empty_cells_before_max(tmpLine) = 2 AND count_empty_cells(tmpLine) = 2 ) then	-- Number of empty cells
 						zeroindex := -1;
 						zeroindex1 := -1;
 						for c in 0 to 3 loop -- Finding empty cell
-							if ( tmpRow(c) = 0 ) then
+							if ( tmpLine(c) = 0 ) then
 								if ( zeroindex < 0 ) then
 									zeroindex := c;
 								else
@@ -569,11 +513,11 @@ begin
 						end loop;
 						for n in 0 to 3 loop
 							if (solutions_array(3-zeroindex, r, n) = '1') then
-								tmpRow(zeroindex) := n+1;
+								tmpLine(zeroindex) := n+1;
 								for n2 in 0 to 3 loop
 									if (solutions_array(3-zeroindex1, r, n2) = '1' AND n2 /= n) then
-										tmpRow(zeroindex1) := n2+1;
-										if (check_constraint(schemas(schemaNumber)(3, r), tmpRow) = '0') then
+										tmpLine(zeroindex1) := n2+1;
+										if (check_constraint(schemas(schemaNumber)(3, r), tmpLine) = '0') then
 											remove_solution_from_cell(3-zeroindex, r, n+1);
 											remove_solution_from_cell(3-zeroindex1, r, n2+1);
 										end if;
@@ -586,28 +530,28 @@ begin
 				-- COLUMNS
 				for c in 0 to 3 loop
 					-- FROM TOP
-					tmpRow := (matrix_array(c, 0), matrix_array(c, 1), matrix_array(c, 2), matrix_array(c, 3));
-					if ( count_empty_cells_before_max(tmpRow) = 1 ) then	-- Number of empty cells
+					tmpLine := (matrix_array(c, 0), matrix_array(c, 1), matrix_array(c, 2), matrix_array(c, 3));
+					if ( count_empty_cells_before_max(tmpLine) = 1 ) then	-- Number of empty cells
 						zeroindex := -1;
 						for r in 0 to 3 loop	-- Finding empty cell
-							if (tmpRow(r) = 0) then
+							if (tmpLine(r) = 0) then
 								zeroindex := r;
 								exit;
 							end if;
 						end loop;
 						for n in 0 to 3 loop
 							if (solutions_array(c, zeroindex, n) = '1') then
-								tmpRow(zeroindex) := n+1;
-								if (check_constraint(schemas(schemaNumber)(1, c), tmpRow) = '0') then
+								tmpLine(zeroindex) := n+1;
+								if (check_constraint(schemas(schemaNumber)(1, c), tmpLine) = '0') then
 									remove_solution_from_cell(c, zeroindex, n+1);
 								end if;
 							end if;
 						end loop;
-					elsif ( count_empty_cells_before_max(tmpRow) = 2 AND count_empty_cells(tmpRow) = 2 ) then	-- Number of empty cells
+					elsif ( count_empty_cells_before_max(tmpLine) = 2 AND count_empty_cells(tmpLine) = 2 ) then	-- Number of empty cells
 						zeroindex := -1;
 						zeroindex1 := -1;
 						for r in 0 to 3 loop -- Finding empty cell
-							if ( tmpRow(r) = 0 ) then
+							if ( tmpLine(r) = 0 ) then
 								if ( zeroindex < 0 ) then
 									zeroindex := r;
 								else
@@ -618,11 +562,11 @@ begin
 						end loop;
 						for n in 0 to 3 loop
 							if (solutions_array(c, zeroindex, n) = '1') then
-								tmpRow(zeroindex) := n+1;
+								tmpLine(zeroindex) := n+1;
 								for n2 in 0 to 3 loop
 									if (solutions_array(c, zeroindex1, n2) = '1' AND n2 /= n) then
-										tmpRow(zeroindex1) := n2+1;
-										if (check_constraint(schemas(schemaNumber)(1, c), tmpRow) = '0') then
+										tmpLine(zeroindex1) := n2+1;
+										if (check_constraint(schemas(schemaNumber)(1, c), tmpLine) = '0') then
 											remove_solution_from_cell(c, zeroindex, n+1);
 											remove_solution_from_cell(c, zeroindex1, n2+1);
 										end if;
@@ -632,28 +576,28 @@ begin
 						end loop;
 					end if;
 					-- FROM BOTTOM
-					tmpRow := (matrix_array(c, 3), matrix_array(c, 2), matrix_array(c, 1), matrix_array(c, 0));
-					if ( count_empty_cells_before_max(tmpRow) = 1 ) then	-- Number of empty cells
+					tmpLine := (matrix_array(c, 3), matrix_array(c, 2), matrix_array(c, 1), matrix_array(c, 0));
+					if ( count_empty_cells_before_max(tmpLine) = 1 ) then	-- Number of empty cells
 						zeroindex := -1;
 						for r in 0 to 3 loop	-- Finding empty cell
-							if (tmpRow(r) = 0) then
+							if (tmpLine(r) = 0) then
 								zeroindex := r;
 								exit;
 							end if;
 						end loop;
 						for n in 0 to 3 loop
 							if (solutions_array(c, 3-zeroindex, n) = '1') then
-								tmpRow(zeroindex) := n+1;
-								if (check_constraint(schemas(schemaNumber)(2, c), tmpRow) = '0') then
+								tmpLine(zeroindex) := n+1;
+								if (check_constraint(schemas(schemaNumber)(2, c), tmpLine) = '0') then
 									remove_solution_from_cell(c, 3-zeroindex, n+1);
 								end if;
 							end if;
 						end loop;
-					elsif ( count_empty_cells_before_max(tmpRow) = 2 AND count_empty_cells(tmpRow) = 2 ) then	-- Number of empty cells
+					elsif ( count_empty_cells_before_max(tmpLine) = 2 AND count_empty_cells(tmpLine) = 2 ) then	-- Number of empty cells
 						zeroindex := -1;
 						zeroindex1 := -1;
 						for r in 0 to 3 loop -- Finding empty cell
-							if ( tmpRow(r) = 0 ) then
+							if ( tmpLine(r) = 0 ) then
 								if ( zeroindex < 0 ) then
 									zeroindex := r;
 								else
@@ -664,11 +608,11 @@ begin
 						end loop;
 						for n in 0 to 3 loop
 							if (solutions_array(c, 3-zeroindex, n) = '1') then
-								tmpRow(zeroindex) := n+1;
+								tmpLine(zeroindex) := n+1;
 								for n2 in 0 to 3 loop
 									if (solutions_array(c, 3-zeroindex1, n2) = '1' AND n2 /= n) then
-										tmpRow(zeroindex1) := n2+1;
-										if (check_constraint(schemas(schemaNumber)(2, c), tmpRow) = '0') then
+										tmpLine(zeroindex1) := n2+1;
+										if (check_constraint(schemas(schemaNumber)(2, c), tmpLine) = '0') then
 											remove_solution_from_cell(c, 3-zeroindex, n+1);
 											remove_solution_from_cell(c, 3-zeroindex1, n2+1);
 										end if;
