@@ -28,6 +28,7 @@ end entity;
 architecture behavior of Skyscrapers_Puzzle_Datapath is
  	-- Sample puzzles
  	constant schemas				: SCHEMAS_TYPE := (
+		--((3, 1, 2, 3), (2, 2, 3, 1), (3, 2, 1, 2), (1, 3, 3, 2)),	-- Not solvable (yet) with automatic solver
  		((3, 1, 2, 4), (2, 2, 1, 3), (3, 2, 2, 1), (2, 2, 2, 1)),	-- OK
  		((4, 2, 2, 1), (4, 2, 2, 1), (1, 2, 3, 3), (1, 2, 3, 3)),   -- OK
  		((2, 2, 1, 3), (3, 1, 2, 4), (2, 2, 2, 1), (3, 2, 2, 1)),	-- OK
