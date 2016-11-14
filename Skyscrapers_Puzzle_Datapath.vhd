@@ -121,11 +121,7 @@ architecture behavior of Skyscrapers_Puzzle_Datapath is
 					solutions_array(row, column, n) <= '0';
 				end if;
 			end loop;	
---			matrix_array(row, column) <= number;
 		else -- Resets the cell
---			add_solution_to_row(row, matrix_array(row, column));
---			add_solution_to_column(column, matrix_array(row, column));
---			matrix_array(row, column) <= number;
 			-- Adds number to the column
 			for c in 0 to 3 loop
 				if (c /= column) then
