@@ -80,12 +80,13 @@ architecture behavioral of Skyscrapers_Puzzle is
 	signal   time_to_next_frame : integer range 0 to FRAME_PERIOD-1;
 begin
 
-Keyboard: entity work.Skyscrapers_Puzzle_Keyboard
+Keyboard: entity work.ps2_keyboard
 	port map
 	(
 		-- INPUT
-		keyboardClock	=> PS2_CLK,
-		keyboardData	=> PS2_DAT,
+		clk		=> CLOCK,
+		ps2_clk	=> PS2_CLK,
+		ps2_data	=> PS2_DAT,
 		
 		-- OUTPUT	
 		keyCode			=> keyCode		
